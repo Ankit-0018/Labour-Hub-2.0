@@ -1,9 +1,6 @@
 import type React from "react"
 import type { Metadata } from "next"
-import { Analytics } from "@vercel/analytics/react"
-import { LanguageProvider } from "@/contexts/language-context"
-import { ThemeProvider } from "@/contexts/theme-context"
-
+import "./global.css"
 export const metadata: Metadata = {
   title: "LabourHub - Hire Trusted Labour Workers",
   description: "Connect with trusted labour workers in your area. Plumbers, electricians, carpenters, and more.",
@@ -18,16 +15,8 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`font-sans antialiased`}>
-        <ThemeProvider>
-          <LanguageProvider>{children}</LanguageProvider>
-        </ThemeProvider>
-        <Analytics />
+        {children}
       </body>
     </html>
   )
 }
-
-
-
-
-import './globals.css'
