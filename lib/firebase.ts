@@ -22,7 +22,8 @@ const app = !getApps().length ? initializeApp(firebaseConfig) : getApps()[0];
 
 //invisible recaptcha
 let recaptchaVerifier: RecaptchaVerifier | null = null;
-
+//Authentication
+export const auth = getAuth(app);
 export const generateRecaptcha = () => {
   if (typeof window === "undefined") return;
 
@@ -36,6 +37,5 @@ export const generateRecaptcha = () => {
 
   return recaptchaVerifier;
 };
-//Authentication
-export const auth = getAuth(app);
+
 export const db = getFirestore(app);

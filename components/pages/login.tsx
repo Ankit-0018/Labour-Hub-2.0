@@ -4,124 +4,34 @@ import type React from "react"
 import { useState } from "react"
 import { Volume2 } from "lucide-react"
 import Link from "next/link"
-import { auth, db, generateRecaptcha } from "@/lib/firebase";
-import {signInWithPhoneNumber} from "firebase/auth"
-import { doc, getDoc } from "firebase/firestore"
+import { useOTPAuth } from "@/hooks/useOTPAuth"
+import { CustomOTPInput } from "../_shared/otp-input"
 
-export function LoginPage() {
-  const [mobile, setMobile] = useState("")
+export default function LoginPage() {
+
   const [isLoading, setIsLoading] = useState(false)
-  const [confirmationResult, setConfirmationResult] = useState<any>(null);
-   const [otp, setOtp] = useState("");
-
- const verifyOtp = async () => {
+  const {sendOTP , verifyOtp, confirmationResult , mobile , setMobile , otp , setOtp} = useOTPAuth();
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsLoading(true);
     try {
-      const result = await confirmationResult.confirm(otp);
-          const user = result.user;
-
-       if (!user) {
-      alert("OTP failed");
-      return;
+      if(confirmationResult){
+     await verifyOtp("login");
+    } else {
+      const result = await sendOTP(e);
+      if(result.success){
+        alert("OTP sent!");}
+    else {
+      alert("Error in sending OTP")
     }
-
-    const userRef = doc(db, "users", user.uid);
-    const userSnap = await getDoc(userRef);
-
-    if (!userSnap.exists()) {
-      alert("No account found. Please register first.");
-      return;
-    }
-
-    alert("Login Successful!");
-      console.log("User:", result.user);
-      alert("Logged in!");
-    } catch (err) {
-      console.error(err);
-      alert("Wrong OTP");
-    }
-  };
-
-
-  const sendOtp = async (e: React.FormEvent) => {
-    try {
-      setIsLoading(true);
-      const recaptchaVerifier = generateRecaptcha();
-      const confirmationResult = await signInWithPhoneNumber(auth, mobile, recaptchaVerifier);
-      console.log("OTP sent successfully", confirmationResult);
-       setConfirmationResult(confirmationResult);
-      alert("OTP sent!");
+  }
     } catch (error) {
-      console.error("Error during signInWithPhoneNumber", error);
-       alert("Error sending OTP");
-    } finally {
+      alert("Error in login");
+    } finally{
       setIsLoading(false);
     }
-  }
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault(); 
-    if (confirmationResult) {
-      await verifyOtp();
-    } else {
-
-      await sendOtp(e);
-    }
-
-  }
-
-
-   
-function CustomOTPInput({ value, onChange, maxLength = 6 }: { value: string; onChange: (value: string) => void; maxLength?: number }) {
-  const handlePaste = (e: React.ClipboardEvent) => {
-    e.preventDefault()
-    const pastedData = e.clipboardData.getData('text').replace(/\D/g, '').slice(0, maxLength)
-    onChange(pastedData)
     
-    const nextIndex = Math.min(pastedData.length - 1, maxLength - 1)
-    setTimeout(() => {
-      const nextInput = document.getElementById(`otp-${nextIndex}`)
-      nextInput?.focus()
-    }, 0)
   }
-
-  const handleChange = (index: number, digitValue: string) => {
-    const newOtp = value.split('')
-    newOtp[index] = digitValue
-    onChange(newOtp.join(''))
-    
-    if (digitValue && index < maxLength - 1) {
-      const nextInput = document.getElementById(`otp-${index + 1}`)
-      nextInput?.focus()
-    }
-  }
-
-  const handleKeyDown = (index: number, e: React.KeyboardEvent) => {
-    if (e.key === 'Backspace' && !value[index] && index > 0) {
-      const prevInput = document.getElementById(`otp-${index - 1}`)
-      prevInput?.focus()
-    }
-  }
-
-  return (
-    <div className="flex gap-4 justify-center">
-      {[...Array(maxLength)].map((_, index) => (
-        <input
-          key={index}
-          id={`otp-${index}`}
-          type="password"
-          inputMode="numeric"
-          maxLength={1}
-          value={value[index] || ''}
-          onChange={(e) => handleChange(index, e.target.value.replace(/\D/g, ''))}
-          onKeyDown={(e) => handleKeyDown(index, e)}
-          onPaste={handlePaste}
-          className="w-full h-10 border border-blue-600 bg-white rounded-sm text-center text-2xl font-semibold focus:outline-none focus:ring-2 focus:ring-blue-500"
-        />
-      ))}
-    </div>
-  )
-}
-
   
   return (
     <div className="min-h-screen flex items-center justify-center bg-[#E5E5E5] p-4">
@@ -186,7 +96,7 @@ function CustomOTPInput({ value, onChange, maxLength = 6 }: { value: string; onC
 
           {/* Footer Link */}
           <div className="mt-6 text-center">
-            <Link href="/signup" className="text-sm text-blue-500 hover:underline">
+            <Link href="/register" className="text-sm text-blue-500 hover:underline">
               Register/रजिस्टर ?
             </Link>
           </div>
