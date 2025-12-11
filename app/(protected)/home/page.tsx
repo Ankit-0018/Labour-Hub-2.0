@@ -7,7 +7,7 @@ const Home = () => {
   const handleLogout = async () => {
     try {
       await logout(); 
-      router.push('/login');
+      router.push('/auth?mode=login');
     } catch (error) {
       console.error("Logout failed:", error);
     }

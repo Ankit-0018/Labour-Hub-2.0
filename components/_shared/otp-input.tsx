@@ -1,15 +1,26 @@
-export function CustomOTPInput({ value, onChange, maxLength = 6 }: { value: string; onChange: (value: string) => void; maxLength?: number }) {
+export function CustomOTPInput({
+  value,
+  onChange,
+  maxLength = 6,
+}: {
+  value: string;
+  onChange: (value: string) => void;
+  maxLength?: number;
+}) {
   const handlePaste = (e: React.ClipboardEvent) => {
-    e.preventDefault()
-    const pastedData = e.clipboardData.getData('text').replace(/\D/g, '').slice(0, maxLength)
-    onChange(pastedData)
-    
-    const nextIndex = Math.min(pastedData.length - 1, maxLength - 1)
+    e.preventDefault();
+    const pastedData = e.clipboardData
+      .getData("text")
+      .replace(/\D/g, "")
+      .slice(0, maxLength);
+    onChange(pastedData);
+
+    const nextIndex = Math.min(pastedData.length - 1, maxLength - 1);
     setTimeout(() => {
-      const nextInput = document.getElementById(`otp-${nextIndex}`)
-      nextInput?.focus()
-    }, 0)
-  }
+      const nextInput = document.getElementById(`otp-${nextIndex}`);
+      nextInput?.focus();
+    }, 0);
+  };
 
   const handleChange = (index: number, digit: string) => {
     if (!/^\d?$/.test(digit)) return;
@@ -19,15 +30,14 @@ export function CustomOTPInput({ value, onChange, maxLength = 6 }: { value: stri
     onChange(arr.join(""));
 
     // move forward
-    if (digit && index < length - 1) {
+    if (digit && index < maxLength - 1) {
       requestAnimationFrame(() => {
         document.getElementById(`otp-${index + 1}`)?.focus();
       });
     }
   };
 
-
-const handleKeyDown = (
+  const handleKeyDown = (
     index: number,
     e: React.KeyboardEvent<HTMLInputElement>
   ) => {
@@ -56,13 +66,15 @@ const handleKeyDown = (
           type="password"
           inputMode="numeric"
           maxLength={1}
-          value={value[index] || ''}
-          onChange={(e) => handleChange(index, e.target.value.replace(/\D/g, ''))}
+          value={value[index] || ""}
+          onChange={(e) =>
+            handleChange(index, e.target.value.replace(/\D/g, ""))
+          }
           onKeyDown={(e) => handleKeyDown(index, e)}
           onPaste={handlePaste}
           className="w-full h-10 border border-blue-600 bg-white rounded-sm text-center text-2xl font-semibold focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
       ))}
     </div>
-  )
+  );
 }

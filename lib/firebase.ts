@@ -26,30 +26,23 @@ let recaptchaVerifier: RecaptchaVerifier | null = null;
 export const auth = getAuth(app);
 
 export const generateRecaptcha = async () => {
-  if (typeof window === "undefined") return;
+  if (typeof window === "undefined") return null;
 
-  // If already exists, clear it safely
+  // If instance already exists, reuse it
   if (recaptchaVerifier) {
-    try {
-      await recaptchaVerifier.clear();
-    } catch (e) {
-      console.warn("Recaptcha clear warning:", e);
-    }
-    recaptchaVerifier = null;
-    // also delete global instance
-    (window as any).recaptchaVerifier = null;
+    return recaptchaVerifier;
   }
 
-  // Create a new one
-  recaptchaVerifier = new RecaptchaVerifier(auth, "recaptcha-container", {
-    size: "invisible",
-  });
+  // Create only once
+  recaptchaVerifier = new RecaptchaVerifier(
+    auth ,// Firebase auth instance
+    "recaptcha-container", // container ID
+    {
+      size: "invisible",
+    }
+  );
 
-  // Firebase requires render() to initialize it properly
   await recaptchaVerifier.render();
-
-  // Attach globally (helps avoid multiple renders across pages)
-  (window as any).recaptchaVerifier = recaptchaVerifier;
 
   return recaptchaVerifier;
 };
