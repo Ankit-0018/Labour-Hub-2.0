@@ -14,7 +14,10 @@ export default function ProtectedLayout({ children } : { children: React.ReactNo
       if (!user) {
         router.replace("/login"); // redirect to login if not logged in
       }
-      setLoading(false);
+      setTimeout(() => {
+        setLoading(false);
+
+      }, 3000)
     });
 
     return () => unsub();

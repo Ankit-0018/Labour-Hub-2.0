@@ -22,18 +22,34 @@ const app = !getApps().length ? initializeApp(firebaseConfig) : getApps()[0];
 
 //invisible recaptcha
 let recaptchaVerifier: RecaptchaVerifier | null = null;
-//Authentication
+
 export const auth = getAuth(app);
-export const generateRecaptcha = () => {
+
+export const generateRecaptcha = async () => {
   if (typeof window === "undefined") return;
 
-  if (!recaptchaVerifier) {
-    recaptchaVerifier = new RecaptchaVerifier(
-      auth,
-      "recaptcha-container",
-      { size: "invisible" }
-    );
+  // If already exists, clear it safely
+  if (recaptchaVerifier) {
+    try {
+      await recaptchaVerifier.clear();
+    } catch (e) {
+      console.warn("Recaptcha clear warning:", e);
+    }
+    recaptchaVerifier = null;
+    // also delete global instance
+    (window as any).recaptchaVerifier = null;
   }
+
+  // Create a new one
+  recaptchaVerifier = new RecaptchaVerifier(auth, "recaptcha-container", {
+    size: "invisible",
+  });
+
+  // Firebase requires render() to initialize it properly
+  await recaptchaVerifier.render();
+
+  // Attach globally (helps avoid multiple renders across pages)
+  (window as any).recaptchaVerifier = recaptchaVerifier;
 
   return recaptchaVerifier;
 };

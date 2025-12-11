@@ -1,37 +1,34 @@
 "use client"
 
 import type React from "react"
-import { useState } from "react"
 import { Volume2 } from "lucide-react"
 import Link from "next/link"
 import { useOTPAuth } from "@/hooks/useOTPAuth"
 import { CustomOTPInput } from "../_shared/otp-input"
 
 export default function RegisterPage() {
-  const [name, setName] = useState("")
-  const [isLoading, setIsLoading] = useState(false)
-  const {sendOTP , verifyOtp , confirmationResult , mobile , setMobile , otp , setOtp} = useOTPAuth();
+  const { 
+    sendOTP , 
+    confirmationResult , 
+    mobile , 
+    setMobile , 
+    otp , 
+    setOtp ,
+    name,
+    setName,
+    setRole,
+    verifyOtp,
+    role,
+    loading
+  } = useOTPAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsLoading(true);
-    try {
-      if(confirmationResult){
-     await verifyOtp("register" , name);
+    if(!confirmationResult){
+     await sendOTP(e)
+    setRole("register");
     } else {
-      const result = await sendOTP(e);
-      if(result.success){
-        alert("OTP sent!");}
-    else {
-      alert("Error in sending OTP")
+      await verifyOtp(e);
     }
-  }
-    } catch (error) {
-      alert("Error in login");
-    } finally{
-      setIsLoading(false);
-    }
-    
   }
 
   return (
@@ -113,10 +110,10 @@ export default function RegisterPage() {
             {/* Submit Button */}
             <button
   type="submit"
-  disabled={isLoading}
+  disabled={loading}
   className="w-full bg-blue-500 hover:bg-blue-600 text-white font-semibold py-4 rounded-2xl transition disabled:opacity-50"
 >
-  {isLoading
+  {loading
     ? "Please wait..."
     : confirmationResult
     ? "Verify OTP"
