@@ -107,7 +107,7 @@ const extractMobile = (input: string): string | null => {
             resetAuthState();
             return;
           }
-            router.push("/home");
+            router.push("/choose-role");
           } catch (err) {
             console.error(err);
             alert("Wrong OTP");
@@ -153,7 +153,7 @@ const extractMobile = (input: string): string | null => {
   
         console.log("User:", result.user);
         alert("Registered successfully!");
-        router.push("/home");
+        router.push("choose-role");
   
       } catch (err) {
         console.error(err);
