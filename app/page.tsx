@@ -10,13 +10,13 @@ export default function Home() {
 
           <div className="space-y-4">
             <Link
-              href="/login"
+              href="auth?mode=login"
               className="block w-full bg-blue-500 hover:bg-blue-600 text-white font-semibold py-4 rounded-2xl transition"
             >
               Login
             </Link>
             <Link
-              href="/signup"
+              href="/auth?mode=register"
               className="block w-full bg-green-500 hover:bg-green-600 text-white font-semibold py-4 rounded-2xl transition"
             >
               Sign Up

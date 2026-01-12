@@ -1,5 +1,6 @@
 'use client';
 import BottomBar from '@/components/_shared/bottom-bar';
+import JobCard from '@/components/_shared/cards/job';
 import { logout } from '@/lib/auth/logout'
 import { MapPin } from 'lucide-react';
 import { useRouter } from 'next/navigation'
@@ -79,28 +80,13 @@ const Home = () => {
 
       <div className="space-y-3">
         {MOCK_JOBS.map((job) => (
-          <div
-            key={job.id}
-            className="bg-white rounded-xl p-4 shadow-sm border"
-          >
-            <div className="flex justify-between items-start">
-              <div>
-                <h3 className="font-medium">{job.title}</h3>
-                <p className="text-sm text-gray-600">{job.address}</p>
-              </div>
+         <JobCard
+  title="Mason (मिस्त्री) की आवश्यकता है"
+  location="Rourkela Industrial Township (ITS), Odisha"
+  salary="₹19,500"
+  image="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRsWOSF50BVvHSLNuAVIMx-w5p_IcRWhT8njg&s"
+/>
 
-              <span className="text-xs bg-blue-100 text-blue-600 px-2 py-1 rounded-full">
-                {job.distance}
-              </span>
-            </div>
-
-            <div className="flex justify-between items-center mt-3">
-              <span className="font-semibold">{job.pay}</span>
-              <button className="text-sm px-4 py-2 bg-blue-500 text-white rounded-lg">
-                View
-              </button>
-            </div>
-          </div>
         ))}
       </div>
       <button onClick={handleLogout} className='py-2 px-4 text-black rounded-md bg-red-600'>Log Out</button>
