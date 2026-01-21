@@ -1,18 +1,22 @@
 'use client';
 import Image, { StaticImageData } from 'next/image';
-import { useRouter } from 'next/navigation'
 
-export type role = {
-    imgSrc : StaticImageData;
-    title : string;
+export type Role = "worker" | "employer";
+
+
+export interface RoleItem {
+  imgSrc: StaticImageData;
+  title: string;
+  role: Role;
 }
-
 interface ChooseRoleProps {
-    roles : role[]
+  roles: RoleItem[];
+  onSelection: () => void;
 }
 
-const ChooseRole = ({roles} : ChooseRoleProps) => {
-    const router = useRouter();
+
+const ChooseRole = ({roles , onSelection} : ChooseRoleProps) => {
+  
   return (
    <div className="min-h-screen flex items-center justify-center bg-lienar-to-br from-blue-50 to-indigo-100 p-4">
         <div className="w-full max-w-md">
@@ -37,7 +41,7 @@ const ChooseRole = ({roles} : ChooseRoleProps) => {
                 </div>
 
                 {/* Button */}
-                <button onClick={() => router.push("/home")} className="w-full bg-blue-500 hover:bg-blue-600 text-white font-semibold py-3 rounded-2xl transition hover:shadow-lg">
+                <button onClick={onSelection} className="w-full bg-blue-500 hover:bg-blue-600 text-white font-semibold py-3 rounded-2xl transition hover:shadow-lg">
                     Confirm
                 </button>
             </div>

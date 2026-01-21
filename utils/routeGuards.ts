@@ -26,7 +26,10 @@ export function resolveRedirect(
         return ROUTES.APP.HOME;
       }
       return null;
-
+    case "WORKER" :
+      if(!pathname.startsWith(ROUTES.ROLE.WORKER)) {
+        return ROUTES.APP.WORKERHOME
+      }
     default:
       return null;
   }

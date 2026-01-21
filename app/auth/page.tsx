@@ -59,14 +59,13 @@ export default function AuthPage() {
       <div className="min-h-screen flex items-center justify-center bg-[#E5E5E5] p-4">
       <div className="w-full max-w-sm">
         {/* Card */}
-        <div className="bg-white rounded-3xl p-8 shadow-lg  min-h-[520px]"></div>
+        <div className="bg-white rounded-3xl p-8 shadow-lg  min-h-[520px]">
       <div className="text-center mb-8">
         <h1 className="text-2xl font-bold text-black mb-1">Labour Hub</h1>
         <p className="text-sm text-gray-500">
           {mode === "register" ? "Register/रजिस्टर" : "Login/लॉग इन"}
         </p>
       </div>
-
       {/* Form */}
       <form onSubmit={handleSubmit} className="space-y-6">
 
@@ -148,9 +147,7 @@ export default function AuthPage() {
             ? "Verify OTP"
             : "Send OTP"}
         </button>
-      </form>
-
-     
+      </form> 
       {/* Footer Link */}
       <div className="mt-6 text-center">
         {mode === "login" ? (
@@ -165,6 +162,7 @@ export default function AuthPage() {
       </div>
       </div>
          <div id="recaptcha-container"></div>
+      </div>
       </div>
     </>
   );

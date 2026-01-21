@@ -51,7 +51,15 @@ const Home = () => {
           Your location: <strong>Noida, UP</strong>
         </span>
       </div>
-
+     <div className="w-full h-[300px] rounded-lg overflow-hidden">
+    <iframe
+      title="Noida Location"
+      src="https://www.google.com/maps?q=Noida,+Uttar+Pradesh&output=embed"
+      className="w-full h-full border-0"
+      loading="lazy"
+      referrerPolicy="no-referrer-when-downgrade"
+    />
+  </div>
       {/* Status Toggle */}
       <div className="mb-6">
         <button

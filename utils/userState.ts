@@ -1,4 +1,4 @@
-export type UserState = "UNAUTHENTICATED" | "NEEDS_ROLE" | "READY";
+export type UserState = "UNAUTHENTICATED" | "NEEDS_ROLE" | "READY" | "WORKER";
 
 export function getUserState(
   user: any,

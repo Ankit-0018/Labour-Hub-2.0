@@ -25,7 +25,7 @@ export default function AuthenticationLayout({
       const state = getUserState(user, userDoc);
       const redirectTo = resolveRedirect(state, pathname);
       if (redirectTo) {
-        router.replace(redirectTo);
+        
       } else {
          setLoading(false);
         }
@@ -33,5 +33,9 @@ export default function AuthenticationLayout({
       return () => unsub();
     }, [pathname, router]);
   if (loading) return <p>Loading...</p>;
-  return {children}       
+  return(
+    <>
+     {children}
+    </>
+    )    
 }

@@ -6,8 +6,12 @@ export const ROUTES = {
   },
   ROLE: {
     CHOOSE: "/choose-role",
+    WORKER: "/worker",
+    EMPLOYER: "/employer"
   },
   APP: {
     HOME: "/home",
+    WORKERHOME: "worker/home",
+    EMPLOYERHOME: "employer/home"
   },
 };

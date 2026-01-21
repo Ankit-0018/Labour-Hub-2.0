@@ -2,7 +2,6 @@
 
 import Image from "next/image";
 import { useState } from "react";
-
 import Labour from "@/assets/Labourr.jpg";
 import Mason from "@/assets/Mason.jpg";
 import Carpenter from "@/assets/Carpenter.jpg";
