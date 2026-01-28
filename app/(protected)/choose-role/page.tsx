@@ -21,34 +21,50 @@ const roles : RoleItem[] = [
     }
 ]
 
-export default async function ChooseRolePage(){
+export default  function ChooseRolePage(){
     const router = useRouter();
-    const [selectedRole , setSelectedRole] = useState<Role>();
+    const [selectedRole , setSelectedRole] = useState<Role>(roles[0].role);
+    const [loading , setLoading] = useState<boolean>(false);
     const handleRoleSelection = async () => {
-    const user = auth.currentUser;
-    //update the db roles
-    if(!user) {
-        throw new Error("User not authenticated!")
-    }
-    try {
-        await updateDoc(
-        doc(db, "users", user.uid), 
-       {
-         isRoleChosen: true,  
-       }
-     );
-        
-       if(selectedRole == "employer"){
-        router.push("employer/home")
-       } else {
-        router.push("worker/home")
-       }
-
-        } 
-    catch (error) {
-            console.log("Error while updating the db")
+        if (!selectedRole) {
+          alert("Please select a role");
+          return;
         }
-    }
+    
+        try {
+          setLoading(true);
+    
+          const user = auth.currentUser;
+          if (!user) {
+            alert("Not authenticated");
+            return;
+          }
+    
+          const userRef = doc(db, "users", user.uid);
+          await updateDoc(userRef, {
+            role: selectedRole,
+          });
+    
+    
+          const token = await user.getIdToken();
+    
+          await fetch("/api/auth/session", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              token,
+              role: selectedRole,
+            }),
+          });
+    
+          router.push(`/${selectedRole}/home`);
+        } catch (err) {
+          console.error(err);
+          alert("Failed to set role. Try again.");
+        } finally {
+          setLoading(false);
+        }
+      };
 
-    return <ChooseRole roles={roles} onSelection={handleRoleSelection} />
+    return <ChooseRole roles={roles} onSelection={handleRoleSelection} setSelectedRole={setSelectedRole} />
 }
