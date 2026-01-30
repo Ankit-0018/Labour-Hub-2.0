@@ -1,0 +1,43 @@
+"use client";
+
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { Home, Users, PlusCircle } from "lucide-react";
+
+export function EmployerNav() {
+  const pathname = usePathname();
+
+  const isActive = (path: string) => pathname === path;
+
+  const navItems = [
+    { label: "घर / Home", href: "/employer/home", icon: Home },
+    { label: "खोज / Search", href: "/employer/search-workers", icon: Users },
+    { label: "पोस्ट / Post", href: "/employer/post-job", icon: PlusCircle },
+  ];
+
+  return (
+    <nav className="bottom-nav employer-nav">
+      <div className="bottom-nav-content">
+        {navItems.map((item) => {
+          const Icon = item.icon;
+          const active = isActive(item.href);
+          return (
+            <Link
+              key={item.href}
+              href={item.href}
+              className={`bottom-nav-item ${active ? "active" : ""}`}
+              aria-current={active ? "page" : undefined}
+            >
+              <Icon 
+                className="bottom-nav-icon" 
+                strokeWidth={active ? 2.5 : 2}
+              />
+              <span className="text-[0.7rem] font-medium">{item.label}</span>
+            </Link>
+          );
+        })}
+      </div>
+    </nav>
+  );
+}
+
