@@ -1,21 +1,21 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
-  Search as SearchIcon,
+  Search,
   MapPin,
   Star,
   Briefcase,
-  Phone,
   ChevronLeft,
   Heart,
 } from "lucide-react";
-import Link from "next/link";
 import { EmployerNav } from "@/components/navigation/EmployerNav";
 
-const DUMMY_WORKERS = [
+
+const WORKERS = [
   {
     id: "1",
     name: "Rajesh Kumar",
@@ -73,30 +73,29 @@ const DUMMY_WORKERS = [
   },
 ];
 
+const FILTERS = ["सब / All", "निकट / Nearest", "शीर्ष रेटेड / Top Rated"];
+
+
 export default function SearchWorkersPage() {
-  const [searchQuery, setSearchQuery] = useState("");
-  const [selectedSkill, setSelectedSkill] = useState<string | null>(null);
+  const [query, setQuery] = useState("");
+  const [filter, setFilter] = useState<string | null>(null);
   const [favorites, setFavorites] = useState<string[]>([]);
 
-  const filters = ["सब / All", "निकट / Nearest", "शीर्ष रेटेड / Top Rated"];
+  const workers = WORKERS
+    .filter(
+      (w) =>
+        w.name.toLowerCase().includes(query.toLowerCase()) ||
+        w.skill.toLowerCase().includes(query.toLowerCase())
+    )
+    .sort((a, b) => {
+      if (filter === "निकट / Nearest") return a.distance - b.distance;
+      if (filter === "शीर्ष रेटेड / Top Rated") return b.rating - a.rating;
+      return 0;
+    });
 
-  const filteredWorkers = DUMMY_WORKERS.filter((worker) => {
-    return (
-      worker.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      worker.skill.toLowerCase().includes(searchQuery.toLowerCase())
-    );
-  }).sort((a, b) => {
-    if (selectedSkill === "निकट / Nearest") return a.distance - b.distance;
-    if (selectedSkill === "शीर्ष रेटेड / Top Rated")
-      return b.rating - a.rating;
-    return 0;
-  });
-
-  const toggleFavorite = (workerId: string) => {
+  const toggleFavorite = (id: string) => {
     setFavorites((prev) =>
-      prev.includes(workerId)
-        ? prev.filter((id) => id !== workerId)
-        : [...prev, workerId]
+      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
     );
   };
 
@@ -106,7 +105,7 @@ export default function SearchWorkersPage() {
       <div className="sticky top-0 z-40 bg-blue-600 text-white shadow-sm">
         <div className="max-w-4xl mx-auto px-4 py-4 flex items-center gap-4">
           <Link href="/employer/home">
-            <ChevronLeft className="w-6 h-6 cursor-pointer hover:opacity-80" />
+            <ChevronLeft className="w-6 h-6 cursor-pointer" />
           </Link>
           <div>
             <h1 className="text-2xl font-bold">मजदूर खोजें</h1>
@@ -115,143 +114,115 @@ export default function SearchWorkersPage() {
         </div>
       </div>
 
-      {/* Search and Filter */}
-      <div className="max-w-4xl mx-auto px-4 py-4 space-y-3 sticky top-16 z-30 bg-white border-b border-gray-200">
-        {/* Search Bar */}
-        <div className="flex gap-2">
-          <div className="flex-1 relative">
-            <SearchIcon className="w-4 h-4 absolute left-3 top-3.5 text-gray-500" />
-            <Input
-              placeholder="नाम या कौशल खोजें..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10 h-10 rounded-lg"
-            />
-          </div>
+      {/* Search + Filter */}
+      <div className="max-w-4xl mx-auto px-4 py-4 space-y-3 sticky top-16 bg-white border-b z-30">
+        <div className="relative">
+          <Search className="w-4 h-4 absolute left-3 top-3.5 text-gray-500" />
+          <Input
+            placeholder="नाम या कौशल खोजें..."
+            className="pl-10 h-10 rounded-lg"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+          />
         </div>
 
-        {/* Filter Tabs */}
-        <div className="flex gap-2 overflow-x-auto pb-2">
-          {filters.map((filter) => (
+        <div className="flex gap-2 overflow-x-auto pb-1">
+          {FILTERS.map((f) => (
             <button
-              key={filter}
-              onClick={() => setSelectedSkill(selectedSkill === filter ? null : filter)}
-              className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition ${
-                selectedSkill === filter
+              key={f}
+              onClick={() => setFilter(filter === f ? null : f)}
+              className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap ${
+                filter === f
                   ? "bg-blue-600 text-white"
-                  : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                  : "bg-gray-100 text-gray-700"
               }`}
             >
-              {filter}
+              {f}
             </button>
           ))}
         </div>
       </div>
 
-      {/* Workers List */}
-      <div className="max-w-4xl mx-auto px-4 py-6 space-y-4 pb-12">
-        {filteredWorkers.length > 0 ? (
-          <>
-            <p className="text-sm text-gray-600">
-              {filteredWorkers.length} मजदूर मिले / {filteredWorkers.length}{" "}
-              workers found
-            </p>
-
-            {filteredWorkers.map((worker) => (
-              <div
-                key={worker.id}
-                className="bg-white rounded-xl border border-gray-200 overflow-hidden hover:shadow-md transition"
-              >
-                <div className="p-4">
-                  {/* Header */}
-                  <div className="flex items-start justify-between mb-3">
-                    <div className="flex items-start gap-3 flex-1">
-                      <div className="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center text-xl flex-shrink-0">
-                        {worker.image}
-                      </div>
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2 mb-1">
-                          <h3 className="font-semibold text-gray-900">
-                            {worker.name}
-                          </h3>
-                          {worker.verified && (
-                            <span className="text-blue-600">✓</span>
-                          )}
-                        </div>
-                        <p className="text-sm text-gray-600">{worker.skill}</p>
-                      </div>
-                    </div>
-                    <button
-                      onClick={() => toggleFavorite(worker.id)}
-                      className="text-gray-400 hover:text-red-500 transition"
-                    >
-                      <Heart
-                        className="w-5 h-5"
-                        fill={favorites.includes(worker.id) ? "currentColor" : "none"}
-                      />
-                    </button>
-                  </div>
-
-                  {/* Rating and Distance */}
-                  <div className="flex items-center justify-between mb-3">
-                    <div className="flex items-center gap-2">
-                      <Star className="w-4 h-4 text-yellow-500 fill-yellow-500" />
-                      <span className="font-semibold text-gray-900">
-                        {worker.rating}
-                      </span>
-                      <span className="text-sm text-gray-600">
-                        ({worker.reviews} reviews)
-                      </span>
-                    </div>
-                    <div className="flex items-center gap-1 text-gray-600">
-                      <MapPin className="w-4 h-4" />
-                      <span className="text-sm">{worker.distance} km</span>
-                    </div>
-                  </div>
-
-                  {/* Wage and Actions */}
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-xs text-gray-600">दैनिक दर / Daily</p>
-                      <p className="text-lg font-bold text-green-600">
-                        ₹{worker.wage}
-                      </p>
-                    </div>
-                    <div className="flex gap-2">
-                      <Link href={`/employer/worker/${worker.id}`}>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          className="text-xs h-9 bg-transparent"
-                        >
-                          प्रोफाइल / Profile
-                        </Button>
-                      </Link>
-                      <Button
-                        size="sm"
-                        className="text-xs h-9 bg-blue-600 hover:bg-blue-700"
-                      >
-                        <Briefcase className="w-3 h-3 mr-1" />
-                        नौकरी दें / Hire
-                      </Button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </>
-        ) : (
-          <div className="text-center py-12">
-            <p className="text-3xl mb-3">🔍</p>
-            <h3 className="font-semibold text-gray-900 mb-1">
-              कोई मजदूर नहीं मिला
-            </h3>
-            <p className="text-gray-600 text-sm">No workers found</p>
-          </div>
-        )}
+      {/* Count */}
+      <div className="max-w-4xl mx-auto px-4 pt-4 text-sm text-gray-600">
+        {workers.length} मजदूर मिले / {workers.length} workers found
       </div>
 
-      {/* Bottom Navigation */}
+      {/* Worker Cards */}
+      <div className="max-w-4xl mx-auto px-4 py-4 space-y-4">
+        {workers.map((w) => (
+          <div
+            key={w.id}
+            className="bg-white rounded-xl border border-gray-200 hover:shadow-md transition"
+          >
+            <div className="p-4">
+              {/* Top */}
+              <div className="flex justify-between mb-3">
+                <div className="flex gap-3">
+                  <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center text-xl">
+                    {w.image}
+                  </div>
+
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <h3 className="font-semibold">{w.name}</h3>
+                      {w.verified && <span className="text-blue-600">✓</span>}
+                    </div>
+                    <p className="text-sm text-gray-600">{w.skill}</p>
+                  </div>
+                </div>
+
+                <button onClick={() => toggleFavorite(w.id)}>
+                  <Heart
+                    className="w-5 h-5 text-gray-400"
+                    fill={favorites.includes(w.id) ? "currentColor" : "none"}
+                  />
+                </button>
+              </div>
+
+              {/* Rating */}
+              <div className="flex justify-between mb-3">
+                <div className="flex items-center gap-2">
+                  <Star className="w-4 h-4 text-yellow-500 fill-yellow-500" />
+                  <span className="font-semibold">{w.rating}</span>
+                  <span className="text-sm text-gray-600">
+                    ({w.reviews} reviews)
+                  </span>
+                </div>
+
+                <div className="flex items-center gap-1 text-gray-600">
+                  <MapPin className="w-4 h-4" />
+                  {w.distance} km
+                </div>
+              </div>
+
+              {/* Bottom */}
+              <div className="flex justify-between items-center">
+                <div>
+                  <p className="text-xs text-gray-600">दैनिक दर / Daily</p>
+                  <p className="text-lg font-bold text-green-600">
+                    ₹{w.wage}
+                  </p>
+                </div>
+
+                <div className="flex gap-2">
+                  <Link href={`/employer/worker/${w.id}`}>
+                    <Button variant="outline" size="sm">
+                      प्रोफाइल / Profile
+                    </Button>
+                  </Link>
+
+                  <Button size="sm" className="bg-blue-600">
+                    <Briefcase className="w-3 h-3 mr-1" />
+                    नौकरी दें / Hire
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+
       <EmployerNav />
     </div>
   );
