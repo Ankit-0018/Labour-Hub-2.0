@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { EmployerNav } from "@/components/navigation/EmployerNav";
+import LocationField from "@/components/sections/location-field";
 
 const SKILLS = [
   { id: "labour", label: "Labour / लेबर" },
@@ -175,18 +176,12 @@ export default function PostJobPage() {
 
             {/* Location */}
             <div>
-              <label className="block text-sm font-semibold text-gray-900 mb-2">
-                स्थान / Location
-              </label>
-              <div className="flex items-center gap-2 p-3 bg-blue-50 border border-blue-200 rounded-lg">
-                <MapPin className="w-5 h-5 text-blue-600" />
-                <span className="text-sm text-gray-900">{formData.location}</span>
-                <span className="text-xs text-gray-600">3 km radius</span>
-              </div>
-              <p className="text-xs text-gray-600 mt-2">
-                स्वचालित रूप से पता लगाया गया है। Automatically detected.
-              </p>
-            </div>
+  <label className="block text-sm font-semibold text-gray-900 mb-2">
+    स्थान / Location
+  </label>
+
+  <LocationField />
+</div>
 
             {/* Description */}
             <div>
