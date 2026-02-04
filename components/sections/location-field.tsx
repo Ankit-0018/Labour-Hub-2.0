@@ -5,6 +5,7 @@ import { MapPin } from "lucide-react";
 import dynamic from "next/dynamic";
 import { useEffect, useState } from "react";
 import { getAddressFromCoords } from "@/lib/utils/getaddress";
+import { useLocationStore } from "@/lib/stores/useLocationStore";
 
 const LiveMap = dynamic(() => import("@/components/common/LiveMap"), {
   ssr: false,
@@ -18,8 +19,8 @@ export default function LocationField({ showMap = false }: LocationFieldProps) {
   const [active, setActive] = useState(false);
   const [address, setAddress] = useState<string | null>(null);
   const [loadingAddress, setLoadingAddress] = useState(false);
-
-  const { location, error, startTracking, stopTracking } = useLiveLocation();
+  const { location , error} = useLocationStore();
+  const {  startTracking, stopTracking } = useLiveLocation();
 
   const toggleActive = () => {
     if (!active) {

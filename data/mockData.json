@@ -1,0 +1,156 @@
+[
+  {
+    "name": "Ramesh Kumar",
+    "phone": "9876543210",
+    "role": "worker",
+    "createdAt": "2025-02-01",
+    "isActive": true,
+    "worker": {
+      "skills": ["Mason"],
+      "experience": 8,
+      "dailyWage": 900,
+      "availability": true,
+      "rating": 4.5,
+      "totalJobs": 32,
+      "location": { "lat": 28.6139, "lng": 77.209 },
+      "verified": true
+    }
+  },
+  {
+    "name": "Suresh Yadav",
+    "phone": "9123456789",
+    "role": "worker",
+    "createdAt": "2025-01-20",
+    "isActive": true,
+    "worker": {
+      "skills": ["Electrician"],
+      "experience": 5,
+      "dailyWage": 1000,
+      "availability": true,
+      "rating": 4.2,
+      "totalJobs": 21,
+      "location": { "lat": 28.7041, "lng": 77.1025 },
+      "verified": false
+    }
+  },
+  {
+    "name": "Ajay Singh",
+    "phone": "9988776655",
+    "role": "worker",
+    "createdAt": "2025-01-15",
+    "isActive": true,
+    "worker": {
+      "skills": ["Plumber"],
+      "experience": 6,
+      "dailyWage": 950,
+      "availability": false,
+      "rating": 4.3,
+      "totalJobs": 26,
+      "location": { "lat": 28.5355, "lng": 77.391 },
+      "verified": true
+    }
+  },
+  {
+    "name": "Mohit Verma",
+    "phone": "9012345678",
+    "role": "worker",
+    "createdAt": "2025-02-02",
+    "isActive": true,
+    "worker": {
+      "skills": ["Carpenter"],
+      "experience": 4,
+      "dailyWage": 800,
+      "availability": true,
+      "rating": 4.0,
+      "totalJobs": 14,
+      "location": { "lat": 28.4595, "lng": 77.0266 },
+      "verified": false
+    }
+  },
+  {
+    "name": "Sunil Sharma",
+    "phone": "9345678123",
+    "role": "worker",
+    "createdAt": "2025-01-10",
+    "isActive": true,
+    "worker": {
+      "skills": ["Painter"],
+      "experience": 7,
+      "dailyWage": 850,
+      "availability": true,
+      "rating": 4.4,
+      "totalJobs": 29,
+      "location": { "lat": 28.6692, "lng": 77.4538 },
+      "verified": true
+    }
+  },
+  {
+    "name": "Rahul Gupta",
+    "phone": "9567891234",
+    "role": "worker",
+    "createdAt": "2025-02-03",
+    "isActive": true,
+    "worker": {
+      "skills": ["Electrician", "Plumber"],
+      "experience": 9,
+      "dailyWage": 1100,
+      "availability": false,
+      "rating": 4.7,
+      "totalJobs": 41,
+      "location": { "lat": 28.4089, "lng": 77.3178 },
+      "verified": true
+    }
+  },
+  {
+    "name": "Amit Sharma",
+    "phone": "9811122233",
+    "role": "employer",
+    "createdAt": "2025-01-05",
+    "isActive": true,
+    "employer": {
+      "companyName": "Sharma Constructions",
+      "businessType": "Building & Renovation",
+      "rating": 4.3,
+      "totalJobsPosted": 12
+    }
+  },
+  {
+    "name": "Vikram Mehta",
+    "phone": "9822334455",
+    "role": "employer",
+    "createdAt": "2025-01-12",
+    "isActive": true,
+    "employer": {
+      "companyName": "Mehta Infra",
+      "businessType": "Infrastructure",
+      "rating": 4.1,
+      "totalJobsPosted": 9
+    }
+  },
+  {
+    "name": "Anil Verma",
+    "phone": "9797979797",
+    "role": "employer",
+    "createdAt": "2025-01-18",
+    "isActive": true,
+    "employer": {
+      "companyName": "Verma Builders",
+      "businessType": "Residential Construction",
+      "rating": 4.0,
+      "totalJobsPosted": 6
+    }
+  },
+  {
+    "name": "Rajeev Khanna",
+    "phone": "9898989898",
+    "role": "employer",
+    "createdAt": "2025-02-01",
+    "isActive": true,
+    "employer": {
+      "companyName": "Khanna Projects",
+      "businessType": "Commercial Projects",
+      "rating": 4.5,
+      "totalJobsPosted": 15
+    }
+  }
+]

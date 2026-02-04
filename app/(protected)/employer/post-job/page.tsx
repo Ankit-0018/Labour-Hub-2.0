@@ -4,10 +4,12 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { MapPin, ChevronLeft } from "lucide-react";
+import { ChevronLeft } from "lucide-react";
 import Link from "next/link";
 import { EmployerNav } from "@/components/navigation/EmployerNav";
 import LocationField from "@/components/sections/location-field";
+import { createJob } from "@/lib/services/job";
+import { useLocationStore } from "@/lib/stores/useLocationStore";
 
 const SKILLS = [
   { id: "labour", label: "Labour / लेबर" },
@@ -27,6 +29,7 @@ const DURATIONS = [
 
 export default function PostJobPage() {
   const router = useRouter();
+  const location = useLocationStore((s) => s.location);
 
   const [formData, setFormData] = useState({
     title: "",
@@ -34,29 +37,52 @@ export default function PostJobPage() {
     wage: "",
     duration: "",
     description: "",
-    location: "Sector 5, Gurgaon",
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-
-    if (!formData.title || !formData.skill || !formData.wage) {
-      alert("कृपया सभी आवश्यक फील्ड भरें / Please fill all required fields");
-      return;
-    }
-
-    console.log("Job posted:", formData);
-    alert("नौकरी पोस्ट की गई / Job posted successfully!");
-    router.push("/employer/home");
-  };
-
   const handleChange = (
-    e: React.ChangeEvent<
-      HTMLInputElement | HTMLTextAreaElement
-    >
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
     const { name, value } = e.target;
     setFormData((p) => ({ ...p, [name]: value }));
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (
+      !formData.title ||
+      !formData.skill ||
+      !formData.wage ||
+      !formData.duration
+    ) {
+      alert("कृपया सभी आवश्यक फील्ड भरें");
+      return;
+    }
+
+    if (!location) {
+      alert("कृपया स्थान चुनें / Please select location");
+      return;
+    }
+
+    try {
+      await createJob({
+        title: formData.title,
+        skill: formData.skill as any,
+        wage: Number(formData.wage),
+        duration: formData.duration as any,
+        description: formData.description || undefined,
+        location: {
+          lat: location.lat,
+          lng: location.lng,
+        },
+      });
+
+      alert("नौकरी पोस्ट की गई / Job posted successfully!");
+      router.push("/employer/home");
+    } catch (err) {
+      console.error(err);
+      alert("नौकरी पोस्ट करने में त्रुटि");
+    }
   };
 
   return (
@@ -102,9 +128,7 @@ export default function PostJobPage() {
                   <button
                     key={s.id}
                     type="button"
-                    onClick={() =>
-                      setFormData((p) => ({ ...p, skill: s.id }))
-                    }
+                    onClick={() => setFormData((p) => ({ ...p, skill: s.id }))}
                     className={`p-3 rounded-lg border-2 text-sm font-medium ${
                       formData.skill === s.id
                         ? "border-blue-600 bg-blue-50"
@@ -158,12 +182,12 @@ export default function PostJobPage() {
 
             {/* Location */}
             <div>
-  <label className="block text-sm font-semibold text-gray-900 mb-2">
-    स्थान / Location
-  </label>
+              <label className="block text-sm font-semibold text-gray-900 mb-2">
+                स्थान / Location
+              </label>
 
-  <LocationField />
-</div>
+              <LocationField />
+            </div>
 
             {/* Description */}
             <div>

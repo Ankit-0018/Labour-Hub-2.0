@@ -8,6 +8,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import dynamic from "next/dynamic";
 import { useLiveLocation } from "@/hooks/useLiveLocation";
+import { useLocationStore } from "@/lib/stores/useLocationStore";
 
 const LiveMap = dynamic(() => import("@/components/common/LiveMap"), {
   ssr: false,
@@ -16,8 +17,8 @@ const LiveMap = dynamic(() => import("@/components/common/LiveMap"), {
 const Home = () => {
   const router = useRouter();
   const [active, setActive] = useState(false);
-
-  const { location, error, startTracking, stopTracking } =
+  const {location , error} = useLocationStore();
+  const { startTracking, stopTracking } =
     useLiveLocation();
 
   const toggleActive = () => {

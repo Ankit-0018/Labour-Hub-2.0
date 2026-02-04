@@ -1,15 +1,14 @@
 "use client";
 
 import { useEffect, useState } from "react";
-
+import { useLocationStore } from "@/lib/stores/useLocationStore";
 export interface Location {
   lat: number;
   lng: number;
 }
 
 export function useLiveLocation() {
-  const [location, setLocation] = useState<Location | null>(null);
-  const [error, setError] = useState<string | null>(null);
+  const {setLocation , setError} = useLocationStore();
   const [watchId, setWatchId] = useState<number | null>(null);
 
   const startTracking = () => {
@@ -49,5 +48,5 @@ export function useLiveLocation() {
     return () => stopTracking();
   }, []);
 
-  return { location, error, startTracking, stopTracking };
+  return { startTracking, stopTracking };
 }
