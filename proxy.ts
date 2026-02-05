@@ -10,8 +10,9 @@ export function proxy(req: NextRequest) {
   if (!token) {
     if (
       pathname.startsWith("/worker") ||
-      pathname.startsWith("/employee") ||
-      pathname === "/choose-role"
+      pathname.startsWith("/employer") ||
+      pathname === "/choose-role" ||
+      pathname !== "/auth"
     ) {
       return NextResponse.redirect(new URL("/auth?mode=login", req.url));
     }
@@ -32,7 +33,7 @@ export function proxy(req: NextRequest) {
         new URL(
           role === "worker"
             ? "/worker/home"
-            : "/employee/home",
+            : "/employer/home",
           req.url
         )
       );

@@ -13,12 +13,14 @@ interface ChooseRoleProps {
   roles: RoleItem[];
   onSelection: () => void;
   setSelectedRole: React.Dispatch<SetStateAction<Role>>;
+  loading?: boolean;
 }
 
 const ChooseRole = ({
   roles,
   onSelection,
   setSelectedRole,
+  loading
 }: ChooseRoleProps) => {
   return (
     <div className="min-h-screen flex items-center justify-center bg-lienar-to-br from-blue-50 to-indigo-100 p-4">
@@ -69,7 +71,7 @@ const ChooseRole = ({
             onClick={onSelection}
             className="w-full bg-blue-500 hover:bg-blue-600 text-white font-semibold py-3 rounded-2xl transition hover:shadow-lg"
           >
-            Confirm
+          {loading ? "Please wait..." : "Continue"}
           </button>
         </div>
 
