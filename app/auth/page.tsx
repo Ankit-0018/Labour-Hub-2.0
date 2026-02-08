@@ -6,7 +6,9 @@ import { useOTPAuth } from "@/hooks/useOTPAuth";
 import { CustomOTPInput } from "@/components/_shared/otp-input";
 import { useSearchParams, useRouter } from "next/navigation";
 import { doc, getDoc, setDoc } from "firebase/firestore";
-import { db } from "@/lib/firebase";
+import { db } from "@/lib/firebase/firebase";
+import { set } from "zod";
+import { setSession } from "@/lib/utils/auth/session";
 
 export default function AuthPage() {
   const searchParams = useSearchParams();
@@ -46,11 +48,12 @@ export default function AuthPage() {
     const user = res.user;
     const userRef = doc(db, "users", user.uid);
     const userSnap = await getDoc(userRef);
+
     const token = await user.getIdToken();
-   if (mode === "register") {
+    if (mode === "register") {
       if (userSnap.exists()) {
         alert("Account already exists. Please login.");
-        router.push("/auth?mode=login");
+        window.location.href = "/auth?mode=login";
         return;
       }
 
@@ -60,60 +63,33 @@ export default function AuthPage() {
         role: null,
         createdAt: new Date(),
       });
-
-      await fetch("/api/auth/session", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          token,
-          role: null, 
-        }),
-      });
-
-      router.push("/choose-role");
-      return;
     }
 
     if (mode === "login") {
       if (!userSnap.exists()) {
         alert("No account found. Please register.");
-        router.push("/auth?mode=register");
+        window.location.href = "/auth?mode=register";
         return;
       }
-
-      const Urole = userSnap.data().role ?? null;
-
-      await fetch("/api/auth/session", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          token,
-          role : Urole, 
-        }),
-      });
-
-      router.push(Urole ? `/${Urole}/home` : "/choose-role");
     }
+
+   await setSession(token)
+
+    window.location.href = "/";
   };
-
-
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-[#E5E5E5] p-4">
       <div className="w-full max-w-sm">
         <div className="bg-white rounded-3xl p-8 shadow-lg min-h-[520px]">
-
           <div className="text-center mb-8">
-            <h1 className="text-2xl font-bold text-black mb-1">
-              Labour Hub
-            </h1>
+            <h1 className="text-2xl font-bold text-black mb-1">Labour Hub</h1>
             <p className="text-sm text-gray-500">
               {mode === "register" ? "Register/रजिस्टर" : "Login/लॉग इन"}
             </p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-6">
-
             {mode === "register" && !confirmationResult && (
               <div className="relative space-y-2">
                 <label className="block text-sm font-medium text-black">
@@ -123,13 +99,11 @@ export default function AuthPage() {
                   type="text"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                   placeholder="eg. अंकित कुमार"
+                  placeholder="eg. अंकित कुमार"
                   className="w-full px-4 py-3 bg-gray-100 rounded-xl"
                   required
                 />
-                {nameErr && (
-                  <p className="text-xs text-red-500">{nameErr}</p>
-                )}
+                {nameErr && <p className="text-xs text-red-500">{nameErr}</p>}
               </div>
             )}
 
@@ -146,9 +120,7 @@ export default function AuthPage() {
                   className="w-full px-4 py-3 bg-gray-100 rounded-xl"
                   required
                 />
-                {numErr && (
-                  <p className="text-xs text-red-500">{numErr}</p>
-                )}
+                {numErr && <p className="text-xs text-red-500">{numErr}</p>}
               </div>
             )}
 
@@ -164,8 +136,8 @@ export default function AuthPage() {
               {loading
                 ? "Please wait..."
                 : confirmationResult
-                ? "Verify OTP"
-                : "Send OTP"}
+                  ? "Verify OTP"
+                  : "Send OTP"}
             </button>
           </form>
 
@@ -186,7 +158,6 @@ export default function AuthPage() {
               </Link>
             )}
           </div>
-
         </div>
 
         <div id="recaptcha-container"></div>

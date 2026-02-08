@@ -1,24 +1,29 @@
-import type React from "react"
-import type { Metadata } from "next"
-import "./global.css"
+import type React from "react";
+import type { Metadata } from "next";
+import "../styles/globals.css";
 import "leaflet/dist/leaflet.css";
+import { getCurrentUser } from "@/lib/utils/auth";
+import UserHydrator from "@/providers/userHydrator";
 
 export const metadata: Metadata = {
   title: "LabourHub - Hire Trusted Labour Workers",
-  description: "Connect with trusted labour workers in your area. Plumbers, electricians, carpenters, and more.",
-  generator: 'v0.app'
-}
+  description:
+    "Connect with trusted labour workers in your area. Plumbers, electricians, carpenters, and more.",
+  generator: "v0.app",
+};
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
-  children: React.ReactNode
+  children: React.ReactNode;
 }>) {
+  const user = await getCurrentUser();
   return (
     <html lang="en">
       <body className={`font-sans antialiased`}>
+        <UserHydrator user={user} />
         {children}
       </body>
     </html>
-  )
+  );
 }

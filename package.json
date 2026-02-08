@@ -16,6 +16,7 @@
     "clsx": "^2.1.1",
     "dotenv": "^17.2.3",
     "firebase": "^12.6.0",
+    "firebase-admin": "^13.6.1",
     "leaflet": "^1.9.4",
     "lucide-react": "^0.556.0",
     "next": "16.0.3",

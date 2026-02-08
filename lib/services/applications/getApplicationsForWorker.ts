@@ -5,14 +5,14 @@ import {
   orderBy,
   getDocs,
 } from "firebase/firestore";
-import { db } from "@/lib/firebase";
+import { db } from "@/lib/firebase/firebase";
 
-export async function getApplicationsForEmployer(employerId: string) {
-  if (!employerId) throw new Error("Employer ID is required");
+export async function getApplicationsForWorker(workerId: string) {
+  if (!workerId) throw new Error("Worker ID is required");
 
   const q = query(
     collection(db, "applications"),
-    where("employerId", "==", employerId),
+    where("workerId", "==", workerId),
     orderBy("appliedAt", "desc")
   );
 

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { auth, db, generateRecaptcha } from "@/lib/firebase";
+import { auth, db, generateRecaptcha } from "@/lib/firebase/firebase";
 import { signInWithPhoneNumber, ConfirmationResult, User } from "firebase/auth";
 
 

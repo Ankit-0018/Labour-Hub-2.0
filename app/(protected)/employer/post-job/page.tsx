@@ -9,7 +9,7 @@ import Link from "next/link";
 import { EmployerNav } from "@/components/navigation/EmployerNav";
 import LocationField from "@/components/sections/location-field";
 import { createJob } from "@/lib/services/job";
-import { useLocationStore } from "@/lib/stores/useLocationStore";
+import { useUserStore } from "@/lib/stores/useUserStore";
 
 const SKILLS = [
   { id: "labour", label: "Labour / लेबर" },
@@ -29,7 +29,7 @@ const DURATIONS = [
 
 export default function PostJobPage() {
   const router = useRouter();
-  const location = useLocationStore((s) => s.location);
+  const location = useUserStore((s) => s.location);
 
   const [formData, setFormData] = useState({
     title: "",

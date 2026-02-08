@@ -2,13 +2,13 @@
 
 import BottomBar from "@/components/_shared/bottom-bar";
 import JobCard from "@/components/cards/job";
-import { logout } from "@/lib/utils/auth/logout";
+import { logout } from "@/lib/utils/auth";
 import { MapPin } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import dynamic from "next/dynamic";
 import { useLiveLocation } from "@/hooks/useLiveLocation";
-import { useLocationStore } from "@/lib/stores/useLocationStore";
+import { useUserStore } from "@/lib/stores/useUserStore";
 
 const LiveMap = dynamic(() => import("@/components/common/LiveMap"), {
   ssr: false,
@@ -16,23 +16,8 @@ const LiveMap = dynamic(() => import("@/components/common/LiveMap"), {
 
 const Home = () => {
   const router = useRouter();
-  const [active, setActive] = useState(false);
-  const {location , error} = useLocationStore();
-  const { startTracking, stopTracking } =
-    useLiveLocation();
-
-  const toggleActive = () => {
-    if (!active) {
-      // turning ON
-      startTracking();
-      setActive(true);
-    } else {
-      // turning OFF
-      stopTracking();
-      setActive(false);
-    }
-  };
-
+  const { location, locationError } = useUserStore();
+  const { startTracking, stopTracking, isTracking } = useLiveLocation();
   const handleLogout = async () => {
     try {
       await logout();
@@ -48,18 +33,18 @@ const Home = () => {
       <div className="flex items-center gap-2 mb-3">
         <MapPin className="text-blue-500" size={18} />
         <span className="text-sm text-gray-700">
-          {active && location
+          {isTracking && location
             ? `Lat: ${location.lat.toFixed(4)}, Lng: ${location.lng.toFixed(4)}`
             : "Location not shared"}
         </span>
       </div>
 
-      {error && (
-        <p className="text-sm text-red-500 mb-3">{error}</p>
+      {locationError && (
+        <p className="text-sm text-red-500 mb-3">{locationError}</p>
       )}
 
       {/* Live Map */}
-      {active && location && (
+      {isTracking && location && (
         <div className="w-full h-[300px] rounded-lg overflow-hidden mb-6">
           <LiveMap lat={location.lat} lng={location.lng} />
         </div>
@@ -68,19 +53,19 @@ const Home = () => {
       {/* Active Toggle */}
       <div className="mb-6">
         <button
-          onClick={toggleActive}
+          onClick={() => (!isTracking ? startTracking() : stopTracking())}
           className={`w-full py-4 rounded-xl text-lg font-semibold text-white transition
             ${
-              active
+              isTracking
                 ? "bg-green-500 hover:bg-green-600"
                 : "bg-gray-400 hover:bg-gray-500"
             }`}
         >
-          {active ? "🟢 Active for Work" : "⚪ Inactive"}
+          {isTracking ? "🟢 Active for Work" : "⚪ Inactive"}
         </button>
 
         <p className="text-center text-xs text-gray-500 mt-2">
-          {active
+          {isTracking
             ? "Your live location is shared with employers"
             : "You are currently not visible to employers"}
         </p>

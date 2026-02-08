@@ -1,8 +1,8 @@
- export async function setSession(token: string, role?: string){
+ export async function setSession(token: string){
     await fetch("/api/auth/session", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ token, role }),
+      body: JSON.stringify({ token }),
     });
   };
 

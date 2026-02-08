@@ -4,7 +4,7 @@ import { useLiveLocation } from "@/hooks/useLiveLocation";
 import { MapPin } from "lucide-react";
 import dynamic from "next/dynamic";
 import { useEffect, useState } from "react";
-import { getAddressFromCoords } from "@/lib/utils/getaddress";
+import { getAddressFromCoords } from "@/lib/utils/location/getaddress";
 import { useLocationStore } from "@/lib/stores/useLocationStore";
 
 const LiveMap = dynamic(() => import("@/components/common/LiveMap"), {

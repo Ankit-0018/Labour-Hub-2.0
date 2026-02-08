@@ -1,52 +1,63 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { useLocationStore } from "@/lib/stores/useLocationStore";
+import { useUserStore } from "@/lib/stores/useUserStore";
+import { useEffect, useRef, useState } from "react";
+
 export interface Location {
   lat: number;
   lng: number;
 }
 
 export function useLiveLocation() {
-  const {setLocation , setError} = useLocationStore();
-  const [watchId, setWatchId] = useState<number | null>(null);
+  const { setLocation, setLocationError, setLocationPermission } = useUserStore();
+  const watchIdRef = useRef<number | null>(null);
 
   const startTracking = () => {
+    if (watchIdRef.current !== null) return; // 🛑 already tracking
+
     if (!navigator.geolocation) {
-      setError("Geolocation not supported");
+      setLocationError("Geolocation not supported");
       return;
     }
 
-    const id = navigator.geolocation.watchPosition(
+    watchIdRef.current = navigator.geolocation.watchPosition(
       (pos) => {
+        setLocationPermission("granted");
+
         setLocation({
           lat: pos.coords.latitude,
           lng: pos.coords.longitude,
+          accuracy: pos.coords.accuracy,
+          timestamp: Date.now(),
         });
       },
       (err) => {
-        setError(err.message);
+        setLocationPermission("denied");
+        setLocationError(err.message);
       },
       {
         enableHighAccuracy: true,
         maximumAge: 5000,
         timeout: 10000,
-      }
+      },
     );
-
-    setWatchId(id);
   };
 
   const stopTracking = () => {
-    if (watchId !== null) {
-      navigator.geolocation.clearWatch(watchId);
-      setWatchId(null);
-    }
+    if (watchIdRef.current === null) return;
+
+    navigator.geolocation.clearWatch(watchIdRef.current);
+    watchIdRef.current = null;
   };
 
+  // auto stop when component unmounts
   useEffect(() => {
     return () => stopTracking();
   }, []);
 
-  return { startTracking, stopTracking };
+  return {
+    startTracking,
+    stopTracking,
+    isTracking: watchIdRef.current !== null,
+  };
 }

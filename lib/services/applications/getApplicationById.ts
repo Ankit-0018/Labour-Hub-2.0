@@ -1,5 +1,5 @@
 import { doc, getDoc } from "firebase/firestore";
-import { db } from "@/lib/firebase";
+import { db } from "@/lib/firebase/firebase";
 
 export async function getEmployerById(userId: string) {
   if (!userId) throw new Error("User ID is required");
