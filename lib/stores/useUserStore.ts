@@ -1,31 +1,76 @@
 import { create } from "zustand";
 
-interface UserData {
-  uid?: string;
-  role?: "worker" | "employer";
+type UserRole = "worker" | "employer";
+
+type UserData = {
+  uid: string;
+  role: UserRole;
   workStatus?: string;
-  locationEnabled?: boolean;
   skillName?: string;
-}
+};
 
-interface UserStore {
-  userData: UserData | null;
-  loading: boolean;
-  setUserData: (data: UserData) => void;
-  setWorkStatus: (status: string) => void;
-  setLocationEnabled: (enabled: boolean) => void;
-}
+type Location = {
+  lat: number;
+  lng: number;
+  accuracy?: number;
+  timestamp?: number;
+};
 
-export const useUserStore = create<UserStore>((set) => ({
-  userData: null,
-  loading: true,
-  setUserData: (data) => set({ userData: data, loading: false }),
-  setWorkStatus: (status) =>
-    set((state) => ({
-      userData: { ...state.userData, workStatus: status },
-    })),
-  setLocationEnabled: (enabled) =>
-    set((state) => ({
-      userData: { ...state.userData, locationEnabled: enabled },
-    })),
+type PermissionState = "granted" | "denied" | "prompt";
+
+type AppStore = {
+  // hydration lifecycle
+  hydrated: boolean;
+  setHydrated: () => void;
+
+  // user session
+  user: UserData | null;
+  setUser: (user: UserData | null) => void;
+  clearUser: () => void;
+
+  // location
+  location: Location | null;
+  locationLoading: boolean;
+  locationPermission: PermissionState;
+  locationError: string | null;
+
+  setLocation: (location: Location) => void;
+  clearLocation: () => void;
+  setLocationLoading: (loading: boolean) => void;
+  setLocationPermission: (perm: PermissionState) => void;
+  setLocationError: (error: string | null) => void;
+};
+
+export const useUserStore = create<AppStore>((set) => ({
+  // hydration
+  hydrated: false,
+  setHydrated: () => set({ hydrated: true }),
+
+  // user
+  user: null,
+  setUser: (user) => set({ user }),
+  clearUser: () => set({ user: null }),
+
+  // location
+  location: null,
+  locationLoading: false,
+  locationPermission: "prompt",
+  locationError: null,
+
+  setLocation: (location) =>
+    set({
+      location,
+      locationLoading: false,
+      locationError: null,
+    }),
+
+  clearLocation: () => set({ location: null }),
+
+  setLocationLoading: (loading) => set({ locationLoading: loading }),
+  setLocationPermission: (perm) => set({ locationPermission: perm }),
+  setLocationError: (error) =>
+    set({
+      locationError: error,
+      locationLoading: false,
+    }),
 }));
