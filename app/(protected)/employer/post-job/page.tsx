@@ -67,9 +67,9 @@ export default function PostJobPage() {
     try {
       await createJob({
         title: formData.title,
-        skill: formData.skill as any,
+        skill: formData.skill as "labour" | "mason" | "carpenter" | "plumber" | "electrician" | "painter",
         wage: Number(formData.wage),
-        duration: formData.duration as any,
+        duration: formData.duration as "4hours" | "8hours" | "fullday" | "halfday",
         description: formData.description || undefined,
         location: {
           lat: location.lat,

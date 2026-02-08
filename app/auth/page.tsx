@@ -4,7 +4,7 @@ import type React from "react";
 import Link from "next/link";
 import { useOTPAuth } from "@/hooks/useOTPAuth";
 import { CustomOTPInput } from "@/components/_shared/otp-input";
-import { useSearchParams, useRouter } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { doc, getDoc, setDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase/firebase";
 import { set } from "zod";
@@ -12,7 +12,7 @@ import { setSession } from "@/lib/utils/auth/session";
 
 export default function AuthPage() {
   const searchParams = useSearchParams();
-  const router = useRouter();
+  // const router = useRouter();
 
   const mode = searchParams.get("mode") === "register" ? "register" : "login";
 
@@ -53,7 +53,11 @@ export default function AuthPage() {
     if (mode === "register") {
       if (userSnap.exists()) {
         alert("Account already exists. Please login.");
+<<<<<<< HEAD
         window.location.href = "/auth?mode=login";
+=======
+        // router.push("/auth?mode=login");
+>>>>>>> 0133517 (stopped authentication for checking all the pages of worker and  employer)
         return;
       }
 
@@ -63,14 +67,48 @@ export default function AuthPage() {
         role: null,
         createdAt: new Date(),
       });
+<<<<<<< HEAD
+=======
+
+      await fetch("/api/auth/session", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          token,
+          role: null, 
+        }),
+      });
+
+      // router.push("/choose-role");
+      return;
+>>>>>>> 0133517 (stopped authentication for checking all the pages of worker and  employer)
     }
 
     if (mode === "login") {
       if (!userSnap.exists()) {
         alert("No account found. Please register.");
+<<<<<<< HEAD
         window.location.href = "/auth?mode=register";
         return;
       }
+=======
+        // router.push("/auth?mode=register");
+        return;
+      }
+
+      const Urole = userSnap.data().role ?? null;
+
+      await fetch("/api/auth/session", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          token,
+          role : Urole, 
+        }),
+      });
+
+      // router.push(Urole ? `/${Urole}/home` : "/choose-role");
+>>>>>>> 0133517 (stopped authentication for checking all the pages of worker and  employer)
     }
 
    await setSession(token)

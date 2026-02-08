@@ -44,32 +44,48 @@ export default function WorkerProfilePage() {
 
   useEffect(() => {
     const loadProfile = async () => {
-      if (!auth.currentUser) {
-        router.push("/");
-        return;
-      }
+      // if (!auth.currentUser) {
+      //   router.push("/");
+      //   return;
+      // }
 
       try {
-        const userRef = doc(db, "users", auth.currentUser.uid);
-        const userSnap = await getDoc(userRef);
+        // const userRef = doc(db, "users", auth.currentUser.uid);
+        // const userSnap = await getDoc(userRef);
 
-        if (userSnap.exists()) {
-          const userData = userSnap.data();
-          setProfile({
-            name: userData.name || "Worker Name",
-            phone: auth.currentUser.phoneNumber || "Not set",
-            email: userData.email || "Not set",
-            location: userData.location || "Sector 5, Gurgaon",
-            skill: userData.skillName || "Electrician",
-            dailyWage: userData.dailyWage || 1000,
-            rating: userData.rating || 4.8,
-            reviews: userData.reviews || 45,
-            jobsCompleted: userData.jobsCompleted || 128,
-            totalEarnings: userData.totalEarnings || 156000,
-            memberSince: "January 2024",
-            isVerified: userData.isVerified || false,
-          });
-        }
+        // if (userSnap.exists()) {
+        //   const userData = userSnap.data();
+        //   setProfile({
+        //     name: userData.name || "Worker Name",
+        //     phone: auth.currentUser.phoneNumber || "Not set",
+        //     email: userData.email || "Not set",
+        //     location: userData.location || "Sector 5, Gurgaon",
+        //     skill: userData.skillName || "Electrician",
+        //     dailyWage: userData.dailyWage || 1000,
+        //     rating: userData.rating || 4.8,
+        //     reviews: userData.reviews || 45,
+        //     jobsCompleted: userData.jobsCompleted || 128,
+        //     totalEarnings: userData.totalEarnings || 156000,
+        //     memberSince: "January 2024",
+        //     isVerified: userData.isVerified || false,
+        //   });
+        // }
+        
+        // Mock data for development
+        setProfile({
+          name: "Worker Name",
+          phone: "Not set",
+          email: "Not set",
+          location: "Sector 5, Gurgaon",
+          skill: "Electrician",
+          dailyWage: 1000,
+          rating: 4.8,
+          reviews: 45,
+          jobsCompleted: 128,
+          totalEarnings: 156000,
+          memberSince: "January 2024",
+          isVerified: false,
+        });
       } catch (error) {
         console.error("Error loading profile:", error);
       } finally {
@@ -83,8 +99,9 @@ export default function WorkerProfilePage() {
   const handleLogout = async () => {
     setLoggingOut(true);
     try {
-      await signOut(auth);
-      router.push("/");
+      // await signOut(auth);
+      // router.push("/");
+      console.log("Logout disabled for development");
     } catch (error) {
       console.error("Error logging out:", error);
       alert("Failed to logout. Please try again.");

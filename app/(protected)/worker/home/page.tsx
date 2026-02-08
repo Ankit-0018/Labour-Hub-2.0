@@ -116,9 +116,10 @@ export default function WorkerHomePage() {
     }
   };
 
-  if (loading) {
-    return <WorkerHomeSkeleton />;
-  }
+  // Authentication/role redirect logic commented for development
+  // if (loading) {
+  //   return <WorkerHomeSkeleton />;
+  // }
 
   const statusInfo = STATUS_OPTIONS.find((s) => s.value === workStatus);
   const isWorking = workStatus !== "offline";
