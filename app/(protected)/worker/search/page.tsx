@@ -1,11 +1,11 @@
 'use client';
 
-import { Suspense } from 'react';
+// import { Suspense } from 'react';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { WorkerNav } from '@/components/navigation/WorkerNav';
-import { JobCard } from '@/components/cards/JobCard';
+// import JobCard  from '@/components/cards/job';
 import '@/styles/worker.css';
 import { Search as SearchIcon, Filter } from 'lucide-react';
 

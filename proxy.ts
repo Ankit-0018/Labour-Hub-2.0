@@ -6,7 +6,6 @@ export async function proxy(req: NextRequest) {
   const token = req.cookies.get("session")?.value;
   const pathname = req.nextUrl.pathname;
 
-  // Not logged in
   if (!token) {
     if (
       pathname.startsWith("/worker") ||
@@ -18,17 +17,17 @@ export async function proxy(req: NextRequest) {
     }
     return NextResponse.next();
   }
-//  Verify Firebase token 🔐
   const decoded = await verifySession(token);
 
   if (!decoded) {
-    return NextResponse.redirect(new URL("/auth?mode=login", req.url));
+    const response = NextResponse.redirect(new URL("/auth?mode=login", req.url));
+    response.cookies.delete("session");
+    return response;
   }
 
   const uid = decoded.uid;
 
   const role = await getUserRole(uid);
-  // Logged in but role not chosen
   if (token && (!role || role === "null")) {
     if (pathname !== "/choose-role") {
       return NextResponse.redirect(new URL("/choose-role", req.url));
@@ -49,7 +48,6 @@ export async function proxy(req: NextRequest) {
     }
   }
 
-  // Role-based protection
   if (role === "worker" && pathname.startsWith("/employer")) {
     return NextResponse.redirect(new URL("/worker/home", req.url));
   }
@@ -58,7 +56,6 @@ export async function proxy(req: NextRequest) {
     return NextResponse.redirect(new URL("/employer/home", req.url));
   }
 
-  // Prevent auth pages when logged in
   if (pathname.startsWith("/auth")) {
     return NextResponse.redirect(
       new URL(

@@ -44,6 +44,7 @@ export default function WorkerProfilePage() {
 
   useEffect(() => {
     const loadProfile = async () => {
+<<<<<<< HEAD
       // if (!auth.currentUser) {
       //   router.push("/");
       //   return;
@@ -86,6 +87,34 @@ export default function WorkerProfilePage() {
           memberSince: "January 2024",
           isVerified: false,
         });
+=======
+      if (!auth.currentUser) {
+        router.push("/");
+        return;
+      }
+
+      try {
+        const userRef = doc(db, "users", auth.currentUser.uid);
+        const userSnap = await getDoc(userRef);
+
+        if (userSnap.exists()) {
+          const userData = userSnap.data();
+          setProfile({
+            name: userData.name || "Worker Name",
+            phone: auth.currentUser.phoneNumber || "Not set",
+            email: userData.email || "Not set",
+            location: userData.location || "Sector 5, Gurgaon",
+            skill: userData.skillName || "Electrician",
+            dailyWage: userData.dailyWage || 1000,
+            rating: userData.rating || 4.8,
+            reviews: userData.reviews || 45,
+            jobsCompleted: userData.jobsCompleted || 128,
+            totalEarnings: userData.totalEarnings || 156000,
+            memberSince: "January 2024",
+            isVerified: userData.isVerified || false,
+          });
+        }
+>>>>>>> refs/remotes/origin/worker
       } catch (error) {
         console.error("Error loading profile:", error);
       } finally {
@@ -99,9 +128,14 @@ export default function WorkerProfilePage() {
   const handleLogout = async () => {
     setLoggingOut(true);
     try {
+<<<<<<< HEAD
       // await signOut(auth);
       // router.push("/");
       console.log("Logout disabled for development");
+=======
+      await signOut(auth);
+      router.push("/");
+>>>>>>> refs/remotes/origin/worker
     } catch (error) {
       console.error("Error logging out:", error);
       alert("Failed to logout. Please try again.");

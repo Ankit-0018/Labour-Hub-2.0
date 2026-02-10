@@ -4,6 +4,7 @@ import "../styles/globals.css";
 import "leaflet/dist/leaflet.css";
 import { getCurrentUser } from "@/lib/utils/auth";
 import UserHydrator from "@/providers/userHydrator";
+import AuthProvider from "@/providers/AuthProvider";
 
 export const metadata: Metadata = {
   title: "LabourHub - Hire Trusted Labour Workers",
@@ -21,8 +22,10 @@ export default async function RootLayout({
   return (
     <html lang="en">
       <body className={`font-sans antialiased`}>
-        <UserHydrator user={user} />
-        {children}
+        <AuthProvider>
+          <UserHydrator user={user} />
+          {children}
+        </AuthProvider>
       </body>
     </html>
   );

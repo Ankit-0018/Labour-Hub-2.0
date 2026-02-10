@@ -19,16 +19,13 @@ type Location = {
 type PermissionState = "granted" | "denied" | "prompt";
 
 type AppStore = {
-  // hydration lifecycle
   hydrated: boolean;
   setHydrated: () => void;
 
-  // user session
   user: UserData | null;
   setUser: (user: UserData | null) => void;
   clearUser: () => void;
 
-  // location
   location: Location | null;
   locationLoading: boolean;
   locationPermission: PermissionState;
@@ -42,16 +39,13 @@ type AppStore = {
 };
 
 export const useUserStore = create<AppStore>((set) => ({
-  // hydration
   hydrated: false,
   setHydrated: () => set({ hydrated: true }),
 
-  // user
   user: null,
   setUser: (user) => set({ user }),
   clearUser: () => set({ user: null }),
 
-  // location
   location: null,
   locationLoading: false,
   locationPermission: "prompt",

@@ -98,7 +98,7 @@ export default function WorkerEarningsPage() {
           </div>
 
           {/* Main Earnings Card */}
-          <div className="bg-primary text-primary-foreground rounded-lg p-6">
+          <div className="bg-card text-primary rounded-lg p-6">
             <div className="flex items-center gap-2 mb-2">
               <Wallet className="w-5 h-5" />
               <span className="text-sm opacity-90">This {selectedPeriod}</span>

@@ -32,7 +32,8 @@ export async function verifySession(token: string) {
     // uid, email, phone_number, exp, etc.
     return decodedToken;
   } catch (error) {
-    console.error("Invalid Firebase session:", error);
+    // Token expired or invalid - suppress verbose logging
+    // Error will be handled by middleware
     return null;
   }
 }
