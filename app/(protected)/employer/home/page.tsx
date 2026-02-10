@@ -32,9 +32,11 @@ export default function EmployerHomePage() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white pb-24">
       {/* Header */}
-      <div className="sticky top-0 bg-blue-600 text-white px-4 py-4 z-40">
-        <h1 className="text-2xl font-bold">Labour Hub</h1>
-        <p className="text-sm text-blue-100">नियोक्ता / Employer</p>
+      <div className="sticky top-0 z-40 bg-blue-600 text-white shadow-sm">
+        <div className="max-w-4xl mx-auto px-4 py-4">
+          <h1 className="text-2xl font-bold">Labour Hub</h1>
+          <p className="text-sm text-blue-100">नियोक्ता / Employer</p>
+        </div>
       </div>
 
       <div className="max-w-4xl mx-auto px-4 py-6 space-y-6">

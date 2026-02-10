@@ -7,7 +7,6 @@ import { CustomOTPInput } from "@/components/_shared/otp-input";
 import { useSearchParams } from "next/navigation";
 import { doc, getDoc, setDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase/firebase";
-import { set } from "zod";
 import { setSession } from "@/lib/utils/auth/session";
 
 export default function AuthPage() {
@@ -50,13 +49,15 @@ export default function AuthPage() {
     const userSnap = await getDoc(userRef);
 
     const token = await user.getIdToken();
+    
     if (mode === "register") {
       if (userSnap.exists()) {
         alert("Account already exists. Please login.");
-        // router.push("/auth?mode=login");
+        window.location.href = "/auth?mode=login";
         return;
       }
 
+      // Create new user document with no role
       await setDoc(userRef, {
         name,
         phone: user.phoneNumber,
@@ -64,43 +65,33 @@ export default function AuthPage() {
         createdAt: new Date(),
       });
 
-      await fetch("/api/auth/session", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          token,
-          role: null, 
-        }),
-      });
+      // Set session cookie
+      await setSession(token);
 
-      // router.push("/choose-role");
+      // Redirect to choose-role page
+      window.location.href = "/choose-role";
       return;
     }
 
     if (mode === "login") {
       if (!userSnap.exists()) {
         alert("No account found. Please register.");
-        // router.push("/auth?mode=register");
+        window.location.href = "/auth?mode=register";
         return;
       }
 
-      const Urole = userSnap.data().role ?? null;
+      const userRole = userSnap.data()?.role ?? null;
 
-      await fetch("/api/auth/session", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          token,
-          role : Urole, 
-        }),
-      });
+      // Set session cookie
+      await setSession(token);
 
-      // router.push(Urole ? `/${Urole}/home` : "/choose-role");
+      // Redirect based on role - middleware will handle the final routing
+      if (userRole && userRole !== "null") {
+        window.location.href = `/${userRole}/home`;
+      } else {
+        window.location.href = "/choose-role";
+      }
     }
-
-   await setSession(token)
-
-    window.location.href = "/";
   };
 
   return (

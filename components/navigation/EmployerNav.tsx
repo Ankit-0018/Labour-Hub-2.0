@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, Users, PlusCircle } from "lucide-react";
+import { Home, Users, PlusCircle, User } from "lucide-react";
 
 export function EmployerNav() {
   const pathname = usePathname();
@@ -13,6 +13,7 @@ export function EmployerNav() {
     { label: "घर / Home", href: "/employer/home", icon: Home },
     { label: "खोज / Search", href: "/employer/search-workers", icon: Users },
     { label: "पोस्ट / Post", href: "/employer/post-job", icon: PlusCircle },
+    { label: "प्रोफाइल / Profile", href: "/employer/profile", icon: User },
   ];
 
   return (
