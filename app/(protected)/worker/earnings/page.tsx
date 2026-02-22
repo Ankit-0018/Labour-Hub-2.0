@@ -1,72 +1,50 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { WorkerNav } from '@/components/navigation/WorkerNav';
 import '@/styles/worker.css';
 import { Calendar, DollarSign, TrendingUp, Wallet } from 'lucide-react';
+import { getWorkerEarningsAction } from '@/lib/server/actions';
 
 export default function WorkerEarningsPage() {
   const [selectedPeriod, setSelectedPeriod] = useState<'week' | 'month' | 'year'>('week');
+  const [data, setData] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
 
-  // Dummy earnings data
-  const earnings = {
-    today: 2500,
-    thisWeek: 12000,
-    thisMonth: 45000,
-    total: 180000,
-    pending: 3500,
-  };
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const res = await getWorkerEarningsAction();
+        setData(res);
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchData();
+  }, []);
+
+  if (loading || !data) {
+    return (
+      <div className="worker-container flex items-center justify-center min-h-screen">
+        <p>लोड हो रहा है... / Loading...</p>
+      </div>
+    );
+  }
 
   const weeklyData = [
-    { day: 'Mon', amount: 2000 },
-    { day: 'Tue', amount: 1500 },
-    { day: 'Wed', amount: 3000 },
-    { day: 'Thu', amount: 1800 },
-    { day: 'Fri', amount: 2200 },
-    { day: 'Sat', amount: 1500 },
+    { day: 'Mon', amount: 0 },
+    { day: 'Tue', amount: 0 },
+    { day: 'Wed', amount: 0 },
+    { day: 'Thu', amount: 0 },
+    { day: 'Fri', amount: 0 },
+    { day: 'Sat', amount: 0 },
     { day: 'Sun', amount: 0 },
   ];
 
-  const maxAmount = Math.max(...weeklyData.map((d) => d.amount));
-
-  const transactions = [
-    {
-      id: 1,
-      date: "आज / Today",
-      description: "विद्युत मरम्मत / Electrical Repair - ABC Building",
-      amount: 1200,
-      status: "completed",
-    },
-    {
-      id: 2,
-      date: "आज / Today",
-      description: "वायरिंग स्थापन / Wiring Installation - XYZ Corp",
-      amount: 1500,
-      status: "pending",
-    },
-    {
-      id: 3,
-      date: "कल / Yesterday",
-      description: "पैनल मरम्मत / Panel Repair - City Services",
-      amount: 900,
-      status: "completed",
-    },
-    {
-      id: 4,
-      date: "2 दिन पहले / 2 days ago",
-      description: "आपातकालीन वायरिंग / Emergency Wiring - Premium",
-      amount: 2000,
-      status: "completed",
-    },
-    {
-      id: 5,
-      date: "3 दिन पहले / 3 days ago",
-      description: "घर सेटअप / Home Setup - BuildCo",
-      amount: 1800,
-      status: "completed",
-    },
-  ];
+  const maxAmount = Math.max(...weeklyData.map((d) => d.amount)) || 1000;
 
   return (
     <div className="worker-container">
@@ -86,11 +64,10 @@ export default function WorkerEarningsPage() {
               <button
                 key={period}
                 onClick={() => setSelectedPeriod(period)}
-                className={`flex-1 py-2 rounded-md text-sm font-medium transition ${
-                  selectedPeriod === period
-                    ? 'bg-primary text-primary-foreground'
-                    : 'text-muted-foreground hover:text-foreground'
-                }`}
+                className={`flex-1 py-2 rounded-md text-sm font-medium transition ${selectedPeriod === period
+                  ? 'bg-primary text-primary-foreground'
+                  : 'text-muted-foreground hover:text-foreground'
+                  }`}
               >
                 {period.charAt(0).toUpperCase() + period.slice(1)}
               </button>
@@ -103,11 +80,15 @@ export default function WorkerEarningsPage() {
               <Wallet className="w-5 h-5" />
               <span className="text-sm opacity-90">This {selectedPeriod}</span>
             </div>
-            <p className="text-4xl font-bold mb-4">₹{earnings.thisWeek.toLocaleString()}</p>
+            <p className="text-4xl font-bold mb-4">₹{
+              selectedPeriod === 'week' ? data.thisWeek.toLocaleString() :
+                selectedPeriod === 'month' ? data.thisMonth.toLocaleString() :
+                  data.total.toLocaleString()
+            }</p>
             <div className="flex gap-4 text-sm">
               <div className="flex items-center gap-1">
                 <TrendingUp className="w-4 h-4" />
-                <span>+12% from last {selectedPeriod}</span>
+                <span>Real-time earnings</span>
               </div>
             </div>
           </div>
@@ -119,14 +100,14 @@ export default function WorkerEarningsPage() {
                 <Calendar className="w-4 h-4" />
                 <span className="text-xs">Today</span>
               </div>
-              <p className="text-xl font-bold text-primary">₹{earnings.today.toLocaleString()}</p>
+              <p className="text-xl font-bold text-primary">₹{data.today.toLocaleString()}</p>
             </div>
             <div className="bg-card rounded-lg p-4 shadow-sm">
               <div className="flex items-center gap-2 text-muted-foreground mb-1">
                 <DollarSign className="w-4 h-4" />
                 <span className="text-xs">Pending</span>
               </div>
-              <p className="text-xl font-bold text-amber-600">₹{earnings.pending.toLocaleString()}</p>
+              <p className="text-xl font-bold text-amber-600">₹{data.pending.toLocaleString()}</p>
             </div>
           </div>
 
@@ -150,7 +131,7 @@ export default function WorkerEarningsPage() {
           <div className="bg-card rounded-lg p-4 shadow-sm">
             <h3 className="font-semibold mb-4">Recent Transactions</h3>
             <div className="space-y-3">
-              {transactions.map((transaction) => (
+              {data.transactions.map((transaction: any) => (
                 <div key={transaction.id} className="flex items-center justify-between py-2 border-b border-border last:border-0">
                   <div>
                     <p className="font-medium text-sm">{transaction.description}</p>

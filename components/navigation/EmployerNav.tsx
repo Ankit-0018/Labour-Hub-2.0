@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, Users, PlusCircle, User } from "lucide-react";
+import { Home, Search, PlusCircle, User, Briefcase } from "lucide-react";
 
 export function EmployerNav() {
   const pathname = usePathname();
@@ -11,29 +11,24 @@ export function EmployerNav() {
 
   const navItems = [
     { label: "घर / Home", href: "/employer/home", icon: Home },
-    { label: "खोज / Search", href: "/employer/search-workers", icon: Users },
+    { label: "काम / Jobs", href: "/employer/jobs", icon: Briefcase },
     { label: "पोस्ट / Post", href: "/employer/post-job", icon: PlusCircle },
     { label: "प्रोफाइल / Profile", href: "/employer/profile", icon: User },
   ];
 
   return (
-    <nav className="bottom-nav employer-nav">
+    <nav className="bottom-nav">
       <div className="bottom-nav-content">
         {navItems.map((item) => {
           const Icon = item.icon;
-          const active = isActive(item.href);
           return (
             <Link
               key={item.href}
               href={item.href}
-              className={`bottom-nav-item ${active ? "active" : ""}`}
-              aria-current={active ? "page" : undefined}
+              className={`bottom-nav-item ${isActive(item.href) ? "active" : ""}`}
             >
-              <Icon 
-                className="bottom-nav-icon" 
-                strokeWidth={active ? 2.5 : 2}
-              />
-              <span className="text-[0.7rem] font-medium">{item.label}</span>
+              <Icon className="bottom-nav-icon" />
+              <span className="text-xs">{item.label}</span>
             </Link>
           );
         })}

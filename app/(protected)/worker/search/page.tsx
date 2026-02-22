@@ -1,68 +1,19 @@
-'use client';
+"use client";
 
-// import { Suspense } from 'react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { WorkerNav } from '@/components/navigation/WorkerNav';
-// import JobCard  from '@/components/cards/job';
 import '@/styles/worker.css';
 import { Search as SearchIcon, Filter } from 'lucide-react';
-
-// Dummy jobs data
-const DUMMY_JOBS = [
-  {
-    id: "1",
-    title: "विद्युत मरम्मत / Electrical Repair",
-    skill: "Electrician / इलेक्ट्रीशियन",
-    wage: 1200,
-    duration: "पूरा दिन / Full Day",
-    distance: 0.8,
-    companyName: "ABC Building",
-  },
-  {
-    id: "2",
-    title: "वायरिंग स्थापन / Wiring Installation",
-    skill: "Electrician / इलेक्ट्रीशियन",
-    wage: 1500,
-    duration: "8 घंटे / 8 Hours",
-    distance: 1.2,
-    companyName: "XYZ Corp",
-  },
-  {
-    id: "3",
-    title: "पैनल मरम्मत / Panel Repair",
-    skill: "Electrician / इलेक्ट्रीशियन",
-    wage: 900,
-    duration: "4 घंटे / 4 Hours",
-    distance: 2.1,
-    companyName: "City Services",
-  },
-  {
-    id: "4",
-    title: "आपातकालीन वायरिंग / Emergency Wiring",
-    skill: "Electrician / इलेक्ट्रीशियन",
-    wage: 2000,
-    duration: "पूरा दिन / Full Day",
-    distance: 2.8,
-    companyName: "Premium Services",
-  },
-  {
-    id: "5",
-    title: "घर विद्युत सेटअप / Home Electrical Setup",
-    skill: "Electrician / इलेक्ट्रीशियन",
-    wage: 1800,
-    duration: "पूरा दिन / Full Day",
-    distance: 0.5,
-    companyName: "BuildCo",
-  },
-];
-
-const skills = ["Electrician / इलेक्ट्रीशियन"]; // Declare the skills variable
+import Link from 'next/link';
+import { getOpenJobsAction, applyToJobAction } from '@/lib/server/actions';
 
 export default function WorkerSearchPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedSkill, setSelectedSkill] = useState<string | null>(null);
+  const [jobs, setJobs] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
 
   const filters = [
     { label: "सब / All", value: "all" },
@@ -71,16 +22,38 @@ export default function WorkerSearchPage() {
     { label: "निकट / Nearest", value: "nearest" },
   ];
 
-  const filteredJobs = DUMMY_JOBS.filter((job) => {
-    return (
-      job.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      (job.companyName && job.companyName.toLowerCase().includes(searchQuery.toLowerCase()))
-    );
-  }).sort((a, b) => {
-    if (selectedSkill === "nearest") return a.distance - b.distance;
-    if (selectedSkill === "highpay") return b.wage - a.wage;
-    return 0;
-  });
+  useEffect(() => {
+    fetchJobs();
+  }, []);
+
+  async function fetchJobs() {
+    try {
+      setLoading(true);
+      const jobList = await getOpenJobsAction();
+      setJobs(jobList);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  const handleApply = async (jobId: string) => {
+    try {
+      const res = await applyToJobAction(jobId);
+      if (res.success) {
+        alert("आवेदन सफल / Application successful!");
+        fetchJobs(); // Refresh list (though maybe we should hide applied jobs)
+      }
+    } catch (err) {
+      console.error(err);
+      alert("आवेदन विफल: " + (err instanceof Error ? err.message : "Error"));
+    }
+  };
+
+  const filteredJobs = jobs?.filter((job) =>
+    job.title.toLowerCase().includes(searchQuery.toLowerCase())
+  ) ?? [];
 
   return (
     <div className="worker-container">
@@ -136,50 +109,43 @@ export default function WorkerSearchPage() {
               {filteredJobs.map((job) => (
                 <div
                   key={job.id}
-                  className="bg-white rounded-xl p-4 shadow-sm border border-gray-200 hover:shadow-md transition"
+                  className="bg-white rounded-xl shadow-sm border border-gray-200 hover:shadow-md transition overflow-hidden"
                 >
-                  <div className="flex justify-between items-start mb-3">
-                    <div className="flex-1">
-                      <h3 className="font-semibold text-gray-900 text-sm">
-                        {job.title}
-                      </h3>
-                      <p className="text-xs text-gray-600 mt-1">
-                        {job.companyName}
-                      </p>
+                  <Link href={`/worker/job/${job.id}`} className="block p-4">
+                    <div className="flex justify-between items-start mb-3">
+                      <div className="flex-1">
+                        <h3 className="font-semibold text-gray-900 text-sm">
+                          {job.title}
+                        </h3>
+                        <p className="text-[10px] text-gray-500 mt-1 uppercase tracking-wider">
+                          Looking for {job.skillsRequired[0] || 'Worker'}
+                        </p>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-lg font-bold text-green-600">
+                          ₹{job.wage}
+                        </p>
+                        <p className="text-[10px] text-gray-500">{job.duration}</p>
+                      </div>
                     </div>
-                    <div className="text-right">
-                      <p className="text-lg font-bold text-green-600">
-                        ₹{job.wage}
-                      </p>
-                      <p className="text-xs text-gray-600">{job.duration}</p>
-                    </div>
-                  </div>
 
-                  <div className="flex items-center justify-between">
-                    <div className="flex gap-2">
-                      <span className="bg-blue-100 text-blue-700 text-xs px-2 py-1 rounded">
-                        {job.skill}
-                      </span>
-                      <span className="bg-gray-100 text-gray-700 text-xs px-2 py-1 rounded">
-                        {job.distance} km
-                      </span>
-                    </div>
-                    <div className="flex gap-2">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="text-xs h-8 bg-transparent"
-                      >
-                        मना / Decline
-                      </Button>
+                    <div className="flex items-center justify-between mt-4">
+                      <div className="flex gap-2">
+                        <span className="bg-blue-50 text-blue-700 text-[10px] px-2 py-0.5 rounded font-medium">
+                          {job.skillsRequired[0] || 'General'}
+                        </span>
+                        <span className="bg-gray-50 text-gray-600 text-[10px] px-2 py-0.5 rounded">
+                          Nearby
+                        </span>
+                      </div>
                       <Button
                         size="sm"
-                        className="text-xs h-8 bg-green-600 hover:bg-green-700"
+                        className="text-xs h-7 bg-blue-600 hover:bg-blue-700 px-4"
                       >
-                        स्वीकार / Accept
+                        विवरण / View Details
                       </Button>
                     </div>
-                  </div>
+                  </Link>
                 </div>
               ))}
             </>

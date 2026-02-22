@@ -5,27 +5,29 @@ import { MapPin } from "lucide-react";
 import dynamic from "next/dynamic";
 import { useEffect, useState } from "react";
 import { getAddressFromCoords } from "@/lib/utils/location/getaddress";
-import { useLocationStore } from "@/lib/stores/useLocationStore";
+import { useUserStore } from "@/lib/stores/useUserStore";
 
 const LiveMap = dynamic(() => import("@/components/common/LiveMap"), {
   ssr: false,
 });
 
 interface LocationFieldProps {
-  showMap?: boolean; 
+  showMap?: boolean;
 }
 
 export default function LocationField({ showMap = false }: LocationFieldProps) {
   const [active, setActive] = useState(false);
   const [address, setAddress] = useState<string | null>(null);
   const [loadingAddress, setLoadingAddress] = useState(false);
-  const { location , error} = useLocationStore();
-  const {  startTracking, stopTracking } = useLiveLocation();
+  const { location, locationError: error, hydrated } = useUserStore();
+  const { startTracking, stopTracking } = useLiveLocation();
 
-  // Rehydrate location store from localStorage on mount
+  // Rehydrate user store from localStorage on mount
   useEffect(() => {
-    useLocationStore.persist.rehydrate();
-  }, []);
+    if (!hydrated) {
+      useUserStore.persist.rehydrate();
+    }
+  }, [hydrated]);
 
   const toggleActive = () => {
     if (!active) {
@@ -37,16 +39,16 @@ export default function LocationField({ showMap = false }: LocationFieldProps) {
     }
   };
 
- useEffect(() => {
-  if (!location || address) return; 
+  useEffect(() => {
+    if (!location || address) return;
 
-  setLoadingAddress(true);
+    setLoadingAddress(true);
 
-  getAddressFromCoords(location.lat, location.lng)
-    .then((addr) => setAddress(addr))
-    .catch(() => setAddress("Unable to fetch address"))
-    .finally(() => setLoadingAddress(false));
-}, [location, address]);
+    getAddressFromCoords(location.lat, location.lng)
+      .then((addr) => setAddress(addr))
+      .catch(() => setAddress("Unable to fetch address"))
+      .finally(() => setLoadingAddress(false));
+  }, [location, address]);
 
   return (
     <div className="space-y-3">
@@ -91,11 +93,10 @@ export default function LocationField({ showMap = false }: LocationFieldProps) {
       <button
         type="button"
         onClick={toggleActive}
-        className={`px-3 py-1.5 text-xs font-medium rounded-md text-white ${
-          active
+        className={`px-3 py-1.5 text-xs font-medium rounded-md text-white ${active
             ? "bg-red-600 hover:bg-red-700"
             : "bg-blue-600 hover:bg-blue-700"
-        }`}
+          }`}
       >
         {active ? "Stop Location" : "Select Location"}
       </button>

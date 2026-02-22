@@ -8,6 +8,14 @@ export function serializeFirestore(data: any) {
         return new Date(value._seconds * 1000).toISOString();
       }
 
+      // Convert Firestore GeoPoint → plain object
+      if (value?._latitude !== undefined && value?._longitude !== undefined) {
+        return { lat: value._latitude, lng: value._longitude };
+      }
+      if (value?._lat !== undefined && value?._long !== undefined) {
+        return { lat: value._lat, lng: value._long };
+      }
+
       return value;
     })
   );

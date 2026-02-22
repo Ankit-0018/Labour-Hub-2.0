@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, Search, Wallet, User } from "lucide-react";
+import { Home, Search, Wallet, User, ClipboardList } from "lucide-react";
 
 export function WorkerNav() {
   const pathname = usePathname();
@@ -12,7 +12,8 @@ export function WorkerNav() {
   const navItems = [
     { label: "घर / Home", href: "/worker/home", icon: Home },
     { label: "खोज / Search", href: "/worker/search", icon: Search },
-    { label: "कमाई / Earnings", href: "/worker/earnings", icon: Wallet },
+    { label: "आवेदन / Apps", href: "/worker/applications", icon: ClipboardList },
+    { label: "कमाई / Wallet", href: "/worker/earnings", icon: Wallet },
     { label: "प्रोफाइल / Profile", href: "/worker/profile", icon: User },
   ];
 

@@ -17,9 +17,9 @@ import {
   LogOut,
   Building2,
 } from "lucide-react";
-import { auth, db } from "@/lib/firebase/firebase";
+import { getEmployerProfileAction } from "@/lib/server/actions";
+import { auth } from "@/lib/firebase/firebase";
 import { signOut } from "firebase/auth";
-import { doc, getDoc } from "firebase/firestore";
 
 type EmployerProfile = {
   name: string;
@@ -42,37 +42,22 @@ export default function EmployerProfilePage() {
   const [loading, setLoading] = useState(true);
   const [profile, setProfile] = useState<EmployerProfile | null>(null);
   const [loggingOut, setLoggingOut] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const loadProfile = async () => {
-      if (!auth.currentUser) {
-        router.push("/");
-        return;
-      }
-
+      setLoading(true);
+      setError(null);
       try {
-        const userRef = doc(db, "users", auth.currentUser.uid);
-        const userSnap = await getDoc(userRef);
-
-        if (userSnap.exists()) {
-          const userData = userSnap.data();
-          setProfile({
-            name: userData.name || "Employer Name",
-            phone: auth.currentUser.phoneNumber || "Not set",
-            email: userData.email || "Not set",
-            location: userData.location || "Sector 5, Gurgaon",
-            companyName: userData.companyName || "My Company",
-            businessType: userData.businessType || "Construction",
-            rating: userData.rating || 4.5,
-            reviews: userData.reviews || 32,
-            jobsPosted: userData.jobsPosted || 45,
-            activeJobs: userData.activeJobs || 8,
-            memberSince: "January 2024",
-            isVerified: userData.isVerified || false,
-          });
+        const data = await getEmployerProfileAction();
+        if (data) {
+          setProfile(data as EmployerProfile);
+        } else {
+          setError("Profile not found");
         }
-      } catch (error) {
-        console.error("Error loading profile:", error);
+      } catch (err) {
+        console.error("Error loading profile:", err);
+        setError("Failed to load profile. Please try again.");
       } finally {
         setLoading(false);
       }
@@ -157,7 +142,7 @@ export default function EmployerProfilePage() {
           {/* Contact Info */}
           <div className="bg-card rounded-lg p-4 shadow-sm space-y-4">
             <h3 className="font-semibold">Contact Information</h3>
-            
+
             <div className="flex items-center gap-3">
               <Phone className="w-5 h-5 text-muted-foreground" />
               <div className="flex-1">
@@ -187,9 +172,11 @@ export default function EmployerProfilePage() {
               <div className="flex-1">
                 <p className="text-xs text-muted-foreground">Location</p>
                 {isEditing ? (
-                  <Input defaultValue={profile.location} className="h-8" />
+                  <Input defaultValue={typeof profile.location === 'string' ? profile.location : ''} className="h-8" />
                 ) : (
-                  <p className="font-medium">{profile.location}</p>
+                  <p className="font-medium">
+                    {typeof profile.location === 'string' ? profile.location : 'Sector 5, Gurgaon'}
+                  </p>
                 )}
               </div>
             </div>
@@ -198,7 +185,7 @@ export default function EmployerProfilePage() {
           {/* Business Info */}
           <div className="bg-card rounded-lg p-4 shadow-sm space-y-4">
             <h3 className="font-semibold">Business Information</h3>
-            
+
             <div className="flex items-center gap-3">
               <Building2 className="w-5 h-5 text-muted-foreground" />
               <div className="flex-1">

@@ -17,6 +17,7 @@ import {
   Camera,
   LogOut,
 } from "lucide-react";
+import { getWorkerProfileAction, updateWorkerProfileAction } from "@/lib/server/actions";
 
 type WorkerProfile = {
   name: string;
@@ -38,71 +39,72 @@ export default function WorkerProfilePage() {
   const [isEditing, setIsEditing] = useState(false);
   const [loading, setLoading] = useState(true);
   const [profile, setProfile] = useState<WorkerProfile | null>(null);
+  const [error, setError] = useState<string | null>(null);
   const [loggingOut, setLoggingOut] = useState(false);
+
+  const [editData, setEditData] = useState<any>({});
 
   useEffect(() => {
     const loadProfile = async () => {
-      // if (!auth.currentUser) {
-      //   router.push("/");
-      //   return;
-      // }
-
       try {
-        // const userRef = doc(db, "users", auth.currentUser.uid);
-        // const userSnap = await getDoc(userRef);
-
-        // if (userSnap.exists()) {
-        //   const userData = userSnap.data();
-        //   setProfile({
-        //     name: userData.name || "Worker Name",
-        //     phone: auth.currentUser.phoneNumber || "Not set",
-        //     email: userData.email || "Not set",
-        //     location: userData.location || "Sector 5, Gurgaon",
-        //     skill: userData.skillName || "Electrician",
-        //     dailyWage: userData.dailyWage || 1000,
-        //     rating: userData.rating || 4.8,
-        //     reviews: userData.reviews || 45,
-        //     jobsCompleted: userData.jobsCompleted || 128,
-        //     totalEarnings: userData.totalEarnings || 156000,
-        //     memberSince: "January 2024",
-        //     isVerified: userData.isVerified || false,
-        //   });
-        // }
-        
-        // Mock data for development
-        setProfile({
-          name: "Worker Name",
-          phone: "Not set",
-          email: "Not set",
-          location: "Sector 5, Gurgaon",
-          skill: "Electrician",
-          dailyWage: 1000,
-          rating: 4.8,
-          reviews: 45,
-          jobsCompleted: 128,
-          totalEarnings: 156000,
-          memberSince: "January 2024",
-          isVerified: false,
+        setError(null);
+        const data = await getWorkerProfileAction();
+        if (!data) throw new Error("Profile Not Found");
+        setProfile(data);
+        setEditData({
+          phone: data.phone,
+          email: data.email,
+          location: data.location,
+          skill: data.skill,
+          dailyWage: data.dailyWage,
         });
-      } catch (error) {
-        console.error("Error loading profile:", error);
+      } catch (err: any) {
+        console.error("Error loading profile:", err);
+        setError(err.message || "Failed to load profile");
       } finally {
         setLoading(false);
       }
     };
 
     loadProfile();
-  }, [router]);
+  }, []);
+
+  const handleEditToggle = async () => {
+    if (isEditing) {
+      // Save logic
+      try {
+        setLoading(true);
+        await updateWorkerProfileAction({
+          phone: editData.phone,
+          email: editData.email,
+          location: editData.location,
+          "workerProfile.skills": [editData.skill],
+          "workerProfile.dailyWage": Number(editData.dailyWage),
+        });
+        // Refresh
+        const data = await getWorkerProfileAction();
+        setProfile(data);
+      } catch (err) {
+        console.error(err);
+        alert("Error saving profile");
+      } finally {
+        setLoading(false);
+      }
+    }
+    setIsEditing(!isEditing);
+  };
 
   const clearUser = useUserStore((s) => s.clearUser);
 
   const handleLogout = async () => {
     setLoggingOut(true);
     try {
-      // await signOut(auth);
+      const { auth } = await import("@/lib/firebase/firebase");
+      const { signOut } = await import("firebase/auth");
+      await signOut(auth);
+      await fetch("/api/auth/session", { method: "DELETE" });
       clearUser(); // Clear persisted store data
-      // router.push("/");
-      console.log("Logout disabled for development");
+      router.push("/");
     } catch (error) {
       console.error("Error logging out:", error);
       alert("Failed to logout. Please try again.");
@@ -111,13 +113,33 @@ export default function WorkerProfilePage() {
     }
   };
 
-  if (loading || !profile) {
+  if (loading) {
     return (
       <div className="worker-container">
-        <div className="worker-layout flex items-center justify-center h-screen">
+        <div className="worker-layout flex items-center justify-center h-screen bg-gray-50">
           <div className="text-center">
             <div className="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-            <p className="text-gray-600">Loading...</p>
+            <p className="text-gray-600 font-medium">Loading your profile...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (error || !profile) {
+    return (
+      <div className="worker-container">
+        <div className="worker-layout flex items-center justify-center h-screen bg-gray-50 p-6">
+          <div className="bg-white p-8 rounded-3xl shadow-xl border border-red-100 text-center max-w-sm w-full">
+            <div className="text-5xl mb-4">⚠️</div>
+            <h2 className="text-xl font-bold text-gray-900 mb-2">Error</h2>
+            <p className="text-gray-600 mb-6">{error || "Could not load profile. Please try again later."}</p>
+            <Button
+              onClick={() => window.location.reload()}
+              className="w-full bg-blue-600 hover:bg-blue-700 h-12 rounded-xl"
+            >
+              Try Again / दोबारा प्रयास करें
+            </Button>
           </div>
         </div>
       </div>
@@ -135,7 +157,7 @@ export default function WorkerProfilePage() {
               variant="ghost"
               size="sm"
               className="text-primary-foreground hover:bg-primary/80"
-              onClick={() => setIsEditing(!isEditing)}
+              onClick={handleEditToggle}
             >
               <Edit2 className="w-4 h-4 mr-1" />
               {isEditing ? "Save" : "Edit"}
@@ -170,13 +192,17 @@ export default function WorkerProfilePage() {
           {/* Contact Info */}
           <div className="bg-card rounded-lg p-4 shadow-sm space-y-4">
             <h3 className="font-semibold">Contact Information</h3>
-            
+
             <div className="flex items-center gap-3">
               <Phone className="w-5 h-5 text-muted-foreground" />
               <div className="flex-1">
                 <p className="text-xs text-muted-foreground">Phone</p>
                 {isEditing ? (
-                  <Input defaultValue={profile.phone} className="h-8" />
+                  <Input
+                    value={editData.phone}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEditData({ ...editData, phone: e.target.value })}
+                    className="h-8"
+                  />
                 ) : (
                   <p className="font-medium">+91 {profile.phone}</p>
                 )}
@@ -188,7 +214,11 @@ export default function WorkerProfilePage() {
               <div className="flex-1">
                 <p className="text-xs text-muted-foreground">Email</p>
                 {isEditing ? (
-                  <Input defaultValue={profile.email} className="h-8" />
+                  <Input
+                    value={editData.email}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEditData({ ...editData, email: e.target.value })}
+                    className="h-8"
+                  />
                 ) : (
                   <p className="font-medium">{profile.email}</p>
                 )}
@@ -200,7 +230,11 @@ export default function WorkerProfilePage() {
               <div className="flex-1">
                 <p className="text-xs text-muted-foreground">Location</p>
                 {isEditing ? (
-                  <Input defaultValue={profile.location} className="h-8" />
+                  <Input
+                    value={editData.location}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEditData({ ...editData, location: e.target.value })}
+                    className="h-8"
+                  />
                 ) : (
                   <p className="font-medium">{profile.location}</p>
                 )}
@@ -211,16 +245,21 @@ export default function WorkerProfilePage() {
           {/* Work Info */}
           <div className="bg-card rounded-lg p-4 shadow-sm space-y-4">
             <h3 className="font-semibold">Work Information</h3>
-            
+
             <div className="flex items-center gap-3">
               <Briefcase className="w-5 h-5 text-muted-foreground" />
               <div className="flex-1">
                 <p className="text-xs text-muted-foreground">Primary Skill</p>
                 {isEditing ? (
-                  <select className="w-full px-3 py-2 rounded-md border border-input bg-background">
-                    <option>Electrician</option>
-                    <option>Plumber</option>
-                    <option>Carpenter</option>
+                  <select
+                    value={editData.skill}
+                    onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setEditData({ ...editData, skill: e.target.value })}
+                    className="w-full px-3 py-2 rounded-md border border-input bg-background"
+                  >
+                    <option value="electrician">Electrician</option>
+                    <option value="plumber">Plumber</option>
+                    <option value="carpenter">Carpenter</option>
+                    <option value="painter">Painter</option>
                   </select>
                 ) : (
                   <p className="font-medium">{profile.skill}</p>
@@ -233,7 +272,12 @@ export default function WorkerProfilePage() {
               <div className="flex-1">
                 <p className="text-xs text-muted-foreground">Daily Wage (₹)</p>
                 {isEditing ? (
-                  <Input type="number" defaultValue={profile.dailyWage} className="h-8" />
+                  <Input
+                    type="number"
+                    value={editData.dailyWage}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEditData({ ...editData, dailyWage: e.target.value })}
+                    className="h-8"
+                  />
                 ) : (
                   <p className="font-medium">₹{profile.dailyWage}/day</p>
                 )}
@@ -248,7 +292,7 @@ export default function WorkerProfilePage() {
               <p className="text-xs text-muted-foreground">Jobs Completed</p>
             </div>
             <div className="bg-card rounded-lg p-4 shadow-sm text-center">
-              <p className="text-2xl font-bold text-primary">₹{(profile.totalEarnings / 1000).toFixed(0)}K</p>
+              <p className="text-2xl font-bold text-primary">₹{profile.totalEarnings >= 1000 ? `${(profile.totalEarnings / 1000).toFixed(1)}K` : profile.totalEarnings}</p>
               <p className="text-xs text-muted-foreground">Total Earned</p>
             </div>
           </div>

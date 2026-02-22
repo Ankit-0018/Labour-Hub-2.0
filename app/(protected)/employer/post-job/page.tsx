@@ -4,11 +4,11 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { ChevronLeft } from "lucide-react";
+import { ChevronLeft, Camera } from "lucide-react";
 import Link from "next/link";
 import { EmployerNav } from "@/components/navigation/EmployerNav";
 import LocationField from "@/components/sections/location-field";
-import { createJob } from "@/lib/services/job";
+import { createJobAction } from "@/lib/server/actions";
 import { useUserStore } from "@/lib/stores/useUserStore";
 
 const SKILLS = [
@@ -65,11 +65,11 @@ export default function PostJobPage() {
     }
 
     try {
-      await createJob({
+      const res = await createJobAction({
         title: formData.title,
-        skill: formData.skill as "labour" | "mason" | "carpenter" | "plumber" | "electrician" | "painter",
+        skill: formData.skill,
         wage: Number(formData.wage),
-        duration: formData.duration as "4hours" | "8hours" | "fullday" | "halfday",
+        duration: formData.duration,
         description: formData.description || undefined,
         location: {
           lat: location.lat,
@@ -77,11 +77,13 @@ export default function PostJobPage() {
         },
       });
 
-      alert("नौकरी पोस्ट की गई / Job posted successfully!");
-      router.push("/employer/home");
+      if (res.success) {
+        alert("नौकरी पोस्ट की गई / Job posted successfully!");
+        router.push("/employer/home");
+      }
     } catch (err) {
       console.error(err);
-      alert("नौकरी पोस्ट करने में त्रुटि");
+      alert("नौकरी पोस्ट करने में त्रुटि: " + (err instanceof Error ? err.message : "Internal Error"));
     }
   };
 
@@ -129,11 +131,10 @@ export default function PostJobPage() {
                     key={s.id}
                     type="button"
                     onClick={() => setFormData((p) => ({ ...p, skill: s.id }))}
-                    className={`p-3 rounded-lg border-2 text-sm font-medium ${
-                      formData.skill === s.id
-                        ? "border-blue-600 bg-blue-50"
-                        : "border-gray-200"
-                    }`}
+                    className={`p-3 rounded-lg border-2 text-sm font-medium ${formData.skill === s.id
+                      ? "border-blue-600 bg-blue-50"
+                      : "border-gray-200"
+                      }`}
                   >
                     {s.label}
                   </button>
@@ -154,11 +155,10 @@ export default function PostJobPage() {
                     onClick={() =>
                       setFormData((p) => ({ ...p, duration: d.id }))
                     }
-                    className={`p-3 rounded-lg border-2 text-sm font-medium ${
-                      formData.duration === d.id
-                        ? "border-blue-600 bg-blue-50"
-                        : "border-gray-200"
-                    }`}
+                    className={`p-3 rounded-lg border-2 text-sm font-medium ${formData.duration === d.id
+                      ? "border-blue-600 bg-blue-50"
+                      : "border-gray-200"
+                      }`}
                   >
                     {d.label}
                   </button>
@@ -180,6 +180,29 @@ export default function PostJobPage() {
               />
             </div>
 
+            {/* Image Upload Placeholder */}
+            <div>
+              <label className="block text-sm font-semibold mb-2">
+                काम की फोटो / Job Image
+              </label>
+              <div
+                className="w-full h-40 border-2 border-dashed border-gray-300 rounded-xl flex flex-col items-center justify-center gap-2 bg-gray-50 cursor-pointer hover:bg-gray-100 transition"
+                onClick={() => alert("Upload functionality would go here. For now, we'll use a dummy image.")}
+              >
+                <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center text-blue-600">
+                  <Camera className="w-6 h-6" />
+                </div>
+                <div className="text-center">
+                  <p className="text-xs font-semibold text-gray-700">फोटो अपलोड करें / Upload Photo</p>
+                  <p className="text-[10px] text-gray-500">Add a clear photo of the work site</p>
+                </div>
+              </div>
+              <p className="mt-2 text-[10px] text-gray-500 italic flex items-center gap-1">
+                <span className="w-1.5 h-1.5 bg-blue-500 rounded-full"></span>
+                A default work icon will be used if no photo is uploaded.
+              </p>
+            </div>
+
             {/* Location */}
             <div>
               <label className="block text-sm font-semibold text-gray-900 mb-2">
@@ -199,7 +222,8 @@ export default function PostJobPage() {
                 rows={4}
                 value={formData.description}
                 onChange={handleChange}
-                className="w-full border rounded-lg px-3 py-2"
+                className="w-full border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none transition"
+                placeholder="यहाँ काम के बारे में विस्तार से लिखें..."
               />
             </div>
 
