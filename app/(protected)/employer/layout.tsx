@@ -1,15 +1,14 @@
 import RoleGuard from "@/components/_shared/RoleGuard";
-import "@/styles/worker.css";
 import { ReactNode } from "react";
 
-export default async function WorkerLayout({
+export default async function EmployerLayout({
   children,
 }: {
   children: ReactNode;
 }) {
   return (
     <>
-      <RoleGuard role="worker">{children}</RoleGuard>
+      <RoleGuard role="employer">{children}</RoleGuard>
     </>
   );
 }

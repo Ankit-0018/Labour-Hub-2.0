@@ -1,20 +1,25 @@
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
 
-type UserRole = "worker" | "employer";
+export type UserRole = "worker" | "employer";
 
-type UserData = {
+export type UserData = {
   uid: string;
   role: UserRole;
   workStatus?: string;
-  skillName?: string;
+  skills?: string[];
+  phone: number;
+  email?: string;
+  dailyWage: number;
+  rating: string;
 };
 
 type Location = {
   lat: number;
   lng: number;
-  accuracy?: number;
-  timestamp?: number;
+  address?: string;
+  geohash?: string;
+  city?: string;
 };
 
 type PermissionState = "granted" | "denied" | "prompt";
@@ -25,18 +30,22 @@ type AppStore = {
 
   user: UserData | null;
   setUser: (user: UserData | null) => void;
+  loading: boolean;
   clearUser: () => void;
+  setLoading: (loading: boolean) => void;
 
   location: Location | null;
   locationLoading: boolean;
   locationPermission: PermissionState;
   locationError: string | null;
+  isTracking: boolean;
 
   setLocation: (location: Location) => void;
   clearLocation: () => void;
   setLocationLoading: (loading: boolean) => void;
   setLocationPermission: (perm: PermissionState) => void;
   setLocationError: (error: string | null) => void;
+  setTracking: (isTracking: boolean) => void;
 };
 
 export const useUserStore = create<AppStore>()(
@@ -47,12 +56,17 @@ export const useUserStore = create<AppStore>()(
 
       user: null,
       setUser: (user) => set({ user }),
+      loading: true,
+      setLoading: (loading) => {
+        set({loading})
+      },
       clearUser: () => set({ user: null, location: null }),
 
       location: null,
       locationLoading: false,
       locationPermission: "prompt",
       locationError: null,
+      isTracking: false,
 
       setLocation: (location) =>
         set({
@@ -70,6 +84,7 @@ export const useUserStore = create<AppStore>()(
           locationError: error,
           locationLoading: false,
         }),
+        setTracking: (isTracking) => set({isTracking: isTracking})
     }),
     {
       name: "labour-hub-storage",

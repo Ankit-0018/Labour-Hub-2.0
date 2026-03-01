@@ -17,6 +17,8 @@ import {
   Camera,
   LogOut,
 } from "lucide-react";
+import { signOut } from "firebase/auth";
+import { auth } from "@/lib/firebase/firebase";
 
 type WorkerProfile = {
   name: string;
@@ -35,74 +37,16 @@ type WorkerProfile = {
 
 export default function WorkerProfilePage() {
   const router = useRouter();
+  const {user , loading , clearUser,location} = useUserStore();
   const [isEditing, setIsEditing] = useState(false);
-  const [loading, setLoading] = useState(true);
-  const [profile, setProfile] = useState<WorkerProfile | null>(null);
   const [loggingOut, setLoggingOut] = useState(false);
-
-  useEffect(() => {
-    const loadProfile = async () => {
-      // if (!auth.currentUser) {
-      //   router.push("/");
-      //   return;
-      // }
-
-      try {
-        // const userRef = doc(db, "users", auth.currentUser.uid);
-        // const userSnap = await getDoc(userRef);
-
-        // if (userSnap.exists()) {
-        //   const userData = userSnap.data();
-        //   setProfile({
-        //     name: userData.name || "Worker Name",
-        //     phone: auth.currentUser.phoneNumber || "Not set",
-        //     email: userData.email || "Not set",
-        //     location: userData.location || "Sector 5, Gurgaon",
-        //     skill: userData.skillName || "Electrician",
-        //     dailyWage: userData.dailyWage || 1000,
-        //     rating: userData.rating || 4.8,
-        //     reviews: userData.reviews || 45,
-        //     jobsCompleted: userData.jobsCompleted || 128,
-        //     totalEarnings: userData.totalEarnings || 156000,
-        //     memberSince: "January 2024",
-        //     isVerified: userData.isVerified || false,
-        //   });
-        // }
-        
-        // Mock data for development
-        setProfile({
-          name: "Worker Name",
-          phone: "Not set",
-          email: "Not set",
-          location: "Sector 5, Gurgaon",
-          skill: "Electrician",
-          dailyWage: 1000,
-          rating: 4.8,
-          reviews: 45,
-          jobsCompleted: 128,
-          totalEarnings: 156000,
-          memberSince: "January 2024",
-          isVerified: false,
-        });
-      } catch (error) {
-        console.error("Error loading profile:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    loadProfile();
-  }, [router]);
-
-  const clearUser = useUserStore((s) => s.clearUser);
 
   const handleLogout = async () => {
     setLoggingOut(true);
     try {
-      // await signOut(auth);
+      await signOut(auth);
       clearUser(); // Clear persisted store data
-      // router.push("/");
-      console.log("Logout disabled for development");
+      router.push("/auth?mode=login");
     } catch (error) {
       console.error("Error logging out:", error);
       alert("Failed to logout. Please try again.");
@@ -110,19 +54,6 @@ export default function WorkerProfilePage() {
       setLoggingOut(false);
     }
   };
-
-  if (loading || !profile) {
-    return (
-      <div className="worker-container">
-        <div className="worker-layout flex items-center justify-center h-screen">
-          <div className="text-center">
-            <div className="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-            <p className="text-gray-600">Loading...</p>
-          </div>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="worker-container">
@@ -151,16 +82,16 @@ export default function WorkerProfilePage() {
               <Camera className="w-3 h-3" />
             </button>
           </div>
-          <h2 className="profile-name">{profile.name}</h2>
-          <p className="profile-skill">{profile.skill}</p>
+          <h2 className="profile-name">{user.name}</h2>
+          <p className="profile-skill">{user.skills}</p>
           <div className="flex items-center gap-2 mt-2">
-            {profile.isVerified && (
+            {user.isVerified && (
               <span className="bg-white/20 px-2 py-1 rounded-full text-xs">
                 ✅ Verified
               </span>
             )}
             <span className="bg-white/20 px-2 py-1 rounded-full text-xs">
-              ⭐ {profile.rating} ({profile.reviews} reviews)
+              ⭐ {user.rating}
             </span>
           </div>
         </div>
@@ -176,9 +107,9 @@ export default function WorkerProfilePage() {
               <div className="flex-1">
                 <p className="text-xs text-muted-foreground">Phone</p>
                 {isEditing ? (
-                  <Input defaultValue={profile.phone} className="h-8" />
+                  <Input defaultValue={user.phone} className="h-8" />
                 ) : (
-                  <p className="font-medium">+91 {profile.phone}</p>
+                  <p className="font-medium">+91 {user.phone}</p>
                 )}
               </div>
             </div>
@@ -188,9 +119,9 @@ export default function WorkerProfilePage() {
               <div className="flex-1">
                 <p className="text-xs text-muted-foreground">Email</p>
                 {isEditing ? (
-                  <Input defaultValue={profile.email} className="h-8" />
+                  <Input defaultValue={user.email} className="h-8" />
                 ) : (
-                  <p className="font-medium">{profile.email}</p>
+                  <p className="font-medium">{user.email}</p>
                 )}
               </div>
             </div>
@@ -200,9 +131,9 @@ export default function WorkerProfilePage() {
               <div className="flex-1">
                 <p className="text-xs text-muted-foreground">Location</p>
                 {isEditing ? (
-                  <Input defaultValue={profile.location} className="h-8" />
+                  <Input defaultValue={location?.address} className="h-8" />
                 ) : (
-                  <p className="font-medium">{profile.location}</p>
+                  <p className="font-medium">{location?.address}</p>
                 )}
               </div>
             </div>
@@ -223,7 +154,7 @@ export default function WorkerProfilePage() {
                     <option>Carpenter</option>
                   </select>
                 ) : (
-                  <p className="font-medium">{profile.skill}</p>
+                  <p className="font-medium">{user.skills}</p>
                 )}
               </div>
             </div>
@@ -233,9 +164,9 @@ export default function WorkerProfilePage() {
               <div className="flex-1">
                 <p className="text-xs text-muted-foreground">Daily Wage (₹)</p>
                 {isEditing ? (
-                  <Input type="number" defaultValue={profile.dailyWage} className="h-8" />
+                  <Input type="number" defaultValue={user.dailyWage} className="h-8" />
                 ) : (
-                  <p className="font-medium">₹{profile.dailyWage}/day</p>
+                  <p className="font-medium">₹{user.dailyWage}/day</p>
                 )}
               </div>
             </div>
@@ -244,11 +175,11 @@ export default function WorkerProfilePage() {
           {/* Stats */}
           <div className="grid grid-cols-2 gap-4">
             <div className="bg-card rounded-lg p-4 shadow-sm text-center">
-              <p className="text-2xl font-bold text-primary">{profile.jobsCompleted}</p>
+              <p className="text-2xl font-bold text-primary">{user.jobsCompleted}</p>
               <p className="text-xs text-muted-foreground">Jobs Completed</p>
             </div>
             <div className="bg-card rounded-lg p-4 shadow-sm text-center">
-              <p className="text-2xl font-bold text-primary">₹{(profile.totalEarnings / 1000).toFixed(0)}K</p>
+              <p className="text-2xl font-bold text-primary">₹{(user.totalEarnings / 1000).toFixed(0)}K</p>
               <p className="text-xs text-muted-foreground">Total Earned</p>
             </div>
           </div>
@@ -256,7 +187,7 @@ export default function WorkerProfilePage() {
           {/* Member Since */}
           <div className="bg-secondary/30 rounded-lg p-4 text-center">
             <p className="text-sm text-muted-foreground">
-              Member since <span className="font-medium">{profile.memberSince}</span>
+              Member since <span className="font-medium">{user.memberSince}</span>
             </p>
           </div>
         </div>

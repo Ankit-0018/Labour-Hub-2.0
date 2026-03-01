@@ -62,6 +62,7 @@ export default function AuthPage() {
         name,
         phone: user.phoneNumber,
         role: null,
+        profileCompleted: false,
         createdAt: new Date(),
       });
 

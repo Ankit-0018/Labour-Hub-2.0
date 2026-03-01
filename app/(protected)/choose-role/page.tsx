@@ -39,29 +39,26 @@ export default function ChooseRolePage() {
       alert("Not authenticated");
       return;
     }
-
     // get fresh ID token
     const token = await user.getIdToken(true);
 
     const response = await fetch("/api/user/set-role", {
       method: "POST",
       headers: {
+        "Authorization": `Bearer ${token}`,
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ role: selectedRole, token }),
+      body: JSON.stringify({ role: selectedRole }),
     });
-
+    await auth.currentUser?.getIdToken(true)
     if (!response.ok) {
       const error = await response.json();
       alert(error.error || "Failed to set role");
       return;
     }
-
-    // refresh session cookie (important)
-    await setSession(token);
     
     // Redirect to the appropriate home page
-    window.location.href = `/${selectedRole}/home`;
+    window.location.href = `/${selectedRole}/info`;
   } catch (err) {
     console.error(err);
     alert("Failed to set role. Try again.");

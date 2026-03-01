@@ -1,19 +1,28 @@
 import { NextResponse } from "next/server";
 import { adminDb, adminAuth } from "@/lib/firebase/firebase-admin";
+import { FieldValue } from "firebase-admin/firestore";
 
 export async function POST(req: Request) {
   try {
-    const { role, token } = await req.json();
+
+    const { role } = await req.json();
+
+    const authHeader = req.headers.get("authorization");
+    const token = authHeader?.split("Bearer ")[1];
 
     if (!token || !role) {
       return NextResponse.json({ error: "Missing data" }, { status: 400 });
     }
 
-    // verify user from token
+    // validate role
+    if (role !== "worker" && role !== "employer") {
+      return NextResponse.json({ error: "Invalid role" }, { status: 400 });
+    }
+
+    // verify firebase user
     const decoded = await adminAuth.verifyIdToken(token);
     const uid = decoded.uid;
 
-    // prevent changing role again
     const userRef = adminDb.collection("users").doc(uid);
     const docSnap = await userRef.get();
 
@@ -28,41 +37,17 @@ export async function POST(req: Request) {
       );
     }
 
-    const rolePayload =
-      role === "worker"
-        ? {
-            role: "worker",
-            worker: {
-              skills: [],
-              experience: 0,
-              dailyWage: null,
-              availability: true,
-              rating: 0,
-              totalJobs: 0,
-              location: null,
-              verified: false,
-            },
-          }
-        : {
-            role: "employer",
-            employer: {
-              companyName: "",
-              businessType: "",
-              rating: 0,
-              totalJobsPosted: 0,
-            },
-          };
-
     // update firestore
     await userRef.update({
-      ...rolePayload,
-      roleSelectedAt: new Date(),
+      role,
+      roleSelectedAt: FieldValue.serverTimestamp(),
     });
 
-    // 🔥 set custom claims (VERY IMPORTANT)
+    // set firebase custom claim
     await adminAuth.setCustomUserClaims(uid, { role });
 
     return NextResponse.json({ success: true });
+
   } catch (err) {
     console.error(err);
     return NextResponse.json({ error: "Server error" }, { status: 500 });

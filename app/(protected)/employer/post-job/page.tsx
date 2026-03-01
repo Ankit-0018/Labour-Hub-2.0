@@ -8,7 +8,7 @@ import { ChevronLeft } from "lucide-react";
 import Link from "next/link";
 import { EmployerNav } from "@/components/navigation/EmployerNav";
 import LocationField from "@/components/sections/location-field";
-import { createJob } from "@/lib/services/job";
+import { createJob } from "@/lib/services/employer";
 import { useUserStore } from "@/lib/stores/useUserStore";
 
 const SKILLS = [
@@ -29,18 +29,18 @@ const DURATIONS = [
 
 export default function PostJobPage() {
   const router = useRouter();
-  const location = useUserStore((s) => s.location);
+  const { user, location } = useUserStore();
 
   const [formData, setFormData] = useState({
     title: "",
-    skill: "",
+    skillsRequired: [] as string[],
     wage: "",
     duration: "",
     description: "",
   });
 
   const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
   ) => {
     const { name, value } = e.target;
     setFormData((p) => ({ ...p, [name]: value }));
@@ -51,7 +51,7 @@ export default function PostJobPage() {
 
     if (
       !formData.title ||
-      !formData.skill ||
+      !formData.skillsRequired ||
       !formData.wage ||
       !formData.duration
     ) {
@@ -64,18 +64,37 @@ export default function PostJobPage() {
       return;
     }
 
+    if (!user) {
+      alert("User not authenticated");
+      return;
+    }
+
     try {
-      await createJob({
-        title: formData.title,
-        skill: formData.skill as "labour" | "mason" | "carpenter" | "plumber" | "electrician" | "painter",
-        wage: Number(formData.wage),
-        duration: formData.duration as "4hours" | "8hours" | "fullday" | "halfday",
-        description: formData.description || undefined,
-        location: {
-          lat: location.lat,
-          lng: location.lng,
+      await createJob(
+        {
+          title: formData.title,
+          skillsRequired: formData.skillsRequired as (
+            | "labour"
+            | "mason"
+            | "carpenter"
+            | "plumber"
+            | "electrician"
+            | "painter"
+          )[],
+          wage: Number(formData.wage),
+          duration: formData.duration as
+            | "4hours"
+            | "8hours"
+            | "fullday"
+            | "halfday",
+          description: formData.description || undefined,
+          location: {
+            lat: location.lat,
+            lng: location.lng,
+          },
         },
-      });
+        user?.uid,
+      );
 
       alert("नौकरी पोस्ट की गई / Job posted successfully!");
       router.push("/employer/home");
@@ -86,7 +105,7 @@ export default function PostJobPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white pb-24">
+    <div className="min-h-screen bg-linear-to-b from-blue-50 to-white pb-24">
       {/* Header */}
       <div className="sticky top-0 z-40 bg-blue-600 text-white shadow-sm">
         <div className="max-w-4xl mx-auto px-4 py-4 flex items-center gap-4">
@@ -128,9 +147,16 @@ export default function PostJobPage() {
                   <button
                     key={s.id}
                     type="button"
-                    onClick={() => setFormData((p) => ({ ...p, skill: s.id }))}
+                    onClick={() =>
+                      setFormData((p) => ({
+                        ...p,
+                        skillsRequired: p.skillsRequired.includes(s.id)
+                          ? p.skillsRequired.filter((skill) => skill !== s.id)
+                          : [...p.skillsRequired, s.id],
+                      }))
+                    }
                     className={`p-3 rounded-lg border-2 text-sm font-medium ${
-                      formData.skill === s.id
+                      formData.skillsRequired.includes(s.id)
                         ? "border-blue-600 bg-blue-50"
                         : "border-gray-200"
                     }`}

@@ -1,14 +1,8 @@
 "use client";
 
 import { useEffect } from "react";
-import { useUserStore } from "@/lib/stores/useUserStore";
+import { UserData, useUserStore } from "@/lib/stores/useUserStore";
 
-type UserData = {
-  uid: string;
-  role: "worker" | "employer";
-  workStatus?: string;
-  skillName?: string;
-} | null;
 
 export default function UserHydrator({ user }: { user: UserData }) {
   const setUser = useUserStore((s) => s.setUser);

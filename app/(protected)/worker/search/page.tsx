@@ -1,86 +1,28 @@
 'use client';
 
 // import { Suspense } from 'react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { WorkerNav } from '@/components/navigation/WorkerNav';
 // import JobCard  from '@/components/cards/job';
 import '@/styles/worker.css';
 import { Search as SearchIcon, Filter } from 'lucide-react';
-
-// Dummy jobs data
-const DUMMY_JOBS = [
-  {
-    id: "1",
-    title: "विद्युत मरम्मत / Electrical Repair",
-    skill: "Electrician / इलेक्ट्रीशियन",
-    wage: 1200,
-    duration: "पूरा दिन / Full Day",
-    distance: 0.8,
-    companyName: "ABC Building",
-  },
-  {
-    id: "2",
-    title: "वायरिंग स्थापन / Wiring Installation",
-    skill: "Electrician / इलेक्ट्रीशियन",
-    wage: 1500,
-    duration: "8 घंटे / 8 Hours",
-    distance: 1.2,
-    companyName: "XYZ Corp",
-  },
-  {
-    id: "3",
-    title: "पैनल मरम्मत / Panel Repair",
-    skill: "Electrician / इलेक्ट्रीशियन",
-    wage: 900,
-    duration: "4 घंटे / 4 Hours",
-    distance: 2.1,
-    companyName: "City Services",
-  },
-  {
-    id: "4",
-    title: "आपातकालीन वायरिंग / Emergency Wiring",
-    skill: "Electrician / इलेक्ट्रीशियन",
-    wage: 2000,
-    duration: "पूरा दिन / Full Day",
-    distance: 2.8,
-    companyName: "Premium Services",
-  },
-  {
-    id: "5",
-    title: "घर विद्युत सेटअप / Home Electrical Setup",
-    skill: "Electrician / इलेक्ट्रीशियन",
-    wage: 1800,
-    duration: "पूरा दिन / Full Day",
-    distance: 0.5,
-    companyName: "BuildCo",
-  },
-];
-
-const skills = ["Electrician / इलेक्ट्रीशियन"]; // Declare the skills variable
+import { Job } from '@/lib/types/employer';
 
 export default function WorkerSearchPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedSkill, setSelectedSkill] = useState<string | null>(null);
-
+  const [jobs , setJobs] = useState<Job[]>();
   const filters = [
     { label: "सब / All", value: "all" },
     { label: "तुरंत / Urgent", value: "urgent" },
     { label: "अधिक पे / High Pay", value: "highpay" },
     { label: "निकट / Nearest", value: "nearest" },
   ];
-
-  const filteredJobs = DUMMY_JOBS.filter((job) => {
-    return (
-      job.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      (job.companyName && job.companyName.toLowerCase().includes(searchQuery.toLowerCase()))
-    );
-  }).sort((a, b) => {
-    if (selectedSkill === "nearest") return a.distance - b.distance;
-    if (selectedSkill === "highpay") return b.wage - a.wage;
-    return 0;
-  });
+  const filteredJobs = jobs?.filter((job) =>
+    job.title.toLowerCase().includes(searchQuery.toLowerCase())
+  ) ?? [];
 
   return (
     <div className="worker-container">
@@ -144,7 +86,7 @@ export default function WorkerSearchPage() {
                         {job.title}
                       </h3>
                       <p className="text-xs text-gray-600 mt-1">
-                        {job.companyName}
+                        {job.employerId}
                       </p>
                     </div>
                     <div className="text-right">
@@ -158,10 +100,12 @@ export default function WorkerSearchPage() {
                   <div className="flex items-center justify-between">
                     <div className="flex gap-2">
                       <span className="bg-blue-100 text-blue-700 text-xs px-2 py-1 rounded">
-                        {job.skill}
+                        {job.skillsRequired.map(s => (
+                          <p>{s}</p>
+                        ))}
                       </span>
                       <span className="bg-gray-100 text-gray-700 text-xs px-2 py-1 rounded">
-                        {job.distance} km
+                        {job.id} km
                       </span>
                     </div>
                     <div className="flex gap-2">

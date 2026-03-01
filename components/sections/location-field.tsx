@@ -3,9 +3,7 @@
 import { useLiveLocation } from "@/hooks/useLiveLocation";
 import { MapPin } from "lucide-react";
 import dynamic from "next/dynamic";
-import { useEffect, useState } from "react";
-import { getAddressFromCoords } from "@/lib/utils/location/getaddress";
-import { useLocationStore } from "@/lib/stores/useLocationStore";
+import { useUserStore } from "@/lib/stores/useUserStore";
 
 const LiveMap = dynamic(() => import("@/components/common/LiveMap"), {
   ssr: false,
@@ -16,37 +14,8 @@ interface LocationFieldProps {
 }
 
 export default function LocationField({ showMap = false }: LocationFieldProps) {
-  const [active, setActive] = useState(false);
-  const [address, setAddress] = useState<string | null>(null);
-  const [loadingAddress, setLoadingAddress] = useState(false);
-  const { location , error} = useLocationStore();
-  const {  startTracking, stopTracking } = useLiveLocation();
-
-  // Rehydrate location store from localStorage on mount
-  useEffect(() => {
-    useLocationStore.persist.rehydrate();
-  }, []);
-
-  const toggleActive = () => {
-    if (!active) {
-      startTracking();
-      setActive(true);
-    } else {
-      stopTracking();
-      setActive(false);
-    }
-  };
-
- useEffect(() => {
-  if (!location || address) return; 
-
-  setLoadingAddress(true);
-
-  getAddressFromCoords(location.lat, location.lng)
-    .then((addr) => setAddress(addr))
-    .catch(() => setAddress("Unable to fetch address"))
-    .finally(() => setLoadingAddress(false));
-}, [location, address]);
+  const {location , locationError} = useUserStore();
+  const {  startTracking, stopTracking, isTracking } = useLiveLocation();
 
   return (
     <div className="space-y-3">
@@ -54,13 +23,13 @@ export default function LocationField({ showMap = false }: LocationFieldProps) {
       <div className="flex items-center gap-2 p-3 bg-blue-50 border border-blue-200 rounded-lg">
         <MapPin className="w-5 h-5 text-blue-600 shrink-0" />
 
-        {loadingAddress ? (
+        {isTracking? (
           <span className="text-sm text-gray-600">
             Detecting location…
           </span>
-        ) : address ? (
+        ) : location?.address ? (
           <span className="text-sm text-gray-900">
-            {address}
+            {location.address}
           </span>
         ) : (
           <span className="text-sm text-gray-600">
@@ -74,30 +43,30 @@ export default function LocationField({ showMap = false }: LocationFieldProps) {
       </div>
 
       {/* Map (optional) */}
-      {showMap && active && location && (
+      {showMap && location && (
         <div className="w-full h-75 rounded-lg overflow-hidden border">
           <LiveMap lat={location.lat} lng={location.lng} />
         </div>
       )}
 
       {/* Error */}
-      {error && (
+      {locationError && (
         <p className="text-xs text-red-600">
-          {error}
+          {locationError}
         </p>
       )}
 
       {/* Action */}
       <button
         type="button"
-        onClick={toggleActive}
+        onClick={location ? stopTracking : startTracking}
         className={`px-3 py-1.5 text-xs font-medium rounded-md text-white ${
-          active
+          location
             ? "bg-red-600 hover:bg-red-700"
             : "bg-blue-600 hover:bg-blue-700"
         }`}
       >
-        {active ? "Stop Location" : "Select Location"}
+        {location ? "Stop Location" : "Select Location"}
       </button>
 
       <p className="text-xs text-gray-600">
