@@ -14,3 +14,6 @@ export type Job = {
   employerId: string;
   status: "open" | "assigned" | "completed" | "cancelled";
 };
+
+
+export type WorkerStatus = "available" | "busy" | "offline";

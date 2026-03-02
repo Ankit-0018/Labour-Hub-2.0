@@ -2,6 +2,7 @@ import { addDoc, collection, doc, endAt, getDocs, orderBy, query, serverTimestam
 import { db } from "../firebase/firebase";
 import { distanceBetween, geohashQueryBounds } from "geofire-common";
 import { Timestamp } from "firebase/firestore";
+import { WorkerStatus } from "../types";
 
 //get all the open jobs
 export const getOpenJobs = async () => {
@@ -123,12 +124,12 @@ export const updateWorkerLocation = async (
 //update availablity
 export const updateWorkerAvailability = async (
   workerId: string,
-  status: "available" | "busy" | "offline"
+  status: WorkerStatus
 ) => {
-  await updateDoc(doc(db, "users", workerId), {
-    availability: status,
-    updatedAt: serverTimestamp(),
-  });
+ await updateDoc(doc(db, "users", workerId), {
+  "worker.availability": status,
+  updatedAt: serverTimestamp(),
+});
 };
 
 //get jobs within the radius
@@ -151,9 +152,11 @@ export async function getJobsWithinRadius(
       startAt(b[0]),
       endAt(b[1])
     );
+  
 
     return getDocs(q);
   });
+
 
   const snapshots = await Promise.all(promises);
 
@@ -164,7 +167,6 @@ export async function getJobsWithinRadius(
       const job = doc.data();
       const jobLat = job.location.lat;
       const jobLng = job.location.lng;
-
       const distanceInKm = distanceBetween(
         [workerLat, workerLng],
         [jobLat, jobLng]
@@ -178,8 +180,8 @@ export async function getJobsWithinRadius(
         });
       }
     });
+ 
   });
-
   return matchingJobs;
 }
 
@@ -279,17 +281,17 @@ export async function getWorkerRating(workerId: string) {
 }
 
 //profile stats
-export async function getWorkerProfileStats(workerId: string) {
-  const completedJobsCount = await getCompletedJobsCount(workerId);
-  const { averageRating, ratingCount } =
-    await getWorkerRating(workerId);
+// export async function getWorkerProfileStats(workerId: string) {
+//   const completedJobsCount = await getCompletedJobsCount(workerId);
+//   const { averageRating, ratingCount } =
+//     await getWorkerRating(workerId);
 
-  return {
-    completedJobsCount,
-    averageRating: averageRating.toFixed(1),
-    ratingCount,
-  };
-}
+//   return {
+//     completedJobsCount,
+//     averageRating: averageRating.toFixed(1),
+//     ratingCount,
+//   };
+// }
 //get worker dashboard data
 export async function getWorkerDashboardData(
   workerId: string,
@@ -298,7 +300,7 @@ export async function getWorkerDashboardData(
   city: string
 ) {
   const nearbyJobs = await getJobsWithinRadius(lat, lng, city, 3);
-
+  console.log(JSON.stringify(nearbyJobs))
   const nearbyJobsCount = nearbyJobs.length;
 
   const closestJobDistance =
@@ -307,12 +309,8 @@ export async function getWorkerDashboardData(
       : null;
 
   const todayEarnings = await getTodayEarnings(workerId);
-  const {averageRating, completedJobsCount, ratingCount} = await getWorkerProfileStats(workerId);
   return {
     nearbyJobsCount,
-    averageRating,
-    completedJobsCount,
-    ratingCount,
     closestJobDistance: closestJobDistance
       ? closestJobDistance.toFixed(2)
       : "—",

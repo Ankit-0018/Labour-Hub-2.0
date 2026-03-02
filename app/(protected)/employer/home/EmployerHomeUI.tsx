@@ -1,7 +1,7 @@
 import { Plus, Users } from "lucide-react";
 import Link from "next/link";
 import { EmployerNav } from "@/components/navigation/EmployerNav";
-import { EmployerDashboardStats, Job } from "@/lib/types/employer";
+import { EmployerDashboardStats, Job } from "@/lib/types";
 type Props = {
   stats: EmployerDashboardStats;
   activeJobs: Job[];

@@ -32,7 +32,6 @@ type WorkerProfile = {
   jobsCompleted: number;
   totalEarnings: number;
   memberSince: string;
-  isVerified: boolean;
 };
 
 export default function WorkerProfilePage() {
@@ -82,16 +81,16 @@ export default function WorkerProfilePage() {
               <Camera className="w-3 h-3" />
             </button>
           </div>
-          <h2 className="profile-name">{user.name}</h2>
-          <p className="profile-skill">{user.skills}</p>
+          <h2 className="profile-name">{user?.fullName}</h2>
+          <p className="profile-skill">{user?.skills}</p>
           <div className="flex items-center gap-2 mt-2">
-            {user.isVerified && (
+            {/* {user.isVerified && (
               <span className="bg-white/20 px-2 py-1 rounded-full text-xs">
                 ✅ Verified
               </span>
-            )}
+            )} */}
             <span className="bg-white/20 px-2 py-1 rounded-full text-xs">
-              ⭐ {user.rating}
+              ⭐ {user?.averageRating}
             </span>
           </div>
         </div>
@@ -107,9 +106,9 @@ export default function WorkerProfilePage() {
               <div className="flex-1">
                 <p className="text-xs text-muted-foreground">Phone</p>
                 {isEditing ? (
-                  <Input defaultValue={user.phone} className="h-8" />
+                  <Input defaultValue={user?.phone} className="h-8" />
                 ) : (
-                  <p className="font-medium">+91 {user.phone}</p>
+                  <p className="font-medium">+91 {user?.phone}</p>
                 )}
               </div>
             </div>
@@ -119,9 +118,9 @@ export default function WorkerProfilePage() {
               <div className="flex-1">
                 <p className="text-xs text-muted-foreground">Email</p>
                 {isEditing ? (
-                  <Input defaultValue={user.email} className="h-8" />
+                  <Input defaultValue={user?.email} className="h-8" />
                 ) : (
-                  <p className="font-medium">{user.email}</p>
+                  <p className="font-medium">{user?.email}</p>
                 )}
               </div>
             </div>
@@ -154,7 +153,7 @@ export default function WorkerProfilePage() {
                     <option>Carpenter</option>
                   </select>
                 ) : (
-                  <p className="font-medium">{user.skills}</p>
+                  <p className="font-medium">{user?.skills}</p>
                 )}
               </div>
             </div>
@@ -164,9 +163,9 @@ export default function WorkerProfilePage() {
               <div className="flex-1">
                 <p className="text-xs text-muted-foreground">Daily Wage (₹)</p>
                 {isEditing ? (
-                  <Input type="number" defaultValue={user.dailyWage} className="h-8" />
+                  <Input type="number" defaultValue={user?.dailyWage} className="h-8" />
                 ) : (
-                  <p className="font-medium">₹{user.dailyWage}/day</p>
+                  <p className="font-medium">₹{user?.dailyWage}/day</p>
                 )}
               </div>
             </div>
@@ -175,11 +174,11 @@ export default function WorkerProfilePage() {
           {/* Stats */}
           <div className="grid grid-cols-2 gap-4">
             <div className="bg-card rounded-lg p-4 shadow-sm text-center">
-              <p className="text-2xl font-bold text-primary">{user.jobsCompleted}</p>
+              <p className="text-2xl font-bold text-primary">{user?.completedJobsCount}</p>
               <p className="text-xs text-muted-foreground">Jobs Completed</p>
             </div>
             <div className="bg-card rounded-lg p-4 shadow-sm text-center">
-              <p className="text-2xl font-bold text-primary">₹{(user.totalEarnings / 1000).toFixed(0)}K</p>
+              <p className="text-2xl font-bold text-primary">₹{(user?.totalEarnings ?? 0 / 1000).toFixed(0)}K</p>
               <p className="text-xs text-muted-foreground">Total Earned</p>
             </div>
           </div>
@@ -187,7 +186,7 @@ export default function WorkerProfilePage() {
           {/* Member Since */}
           <div className="bg-secondary/30 rounded-lg p-4 text-center">
             <p className="text-sm text-muted-foreground">
-              Member since <span className="font-medium">{user.memberSince}</span>
+              Member since <span className="font-medium">{user?.memberSince?.toLocaleString()}</span>
             </p>
           </div>
         </div>

@@ -5,13 +5,18 @@ export type UserRole = "worker" | "employer";
 
 export type UserData = {
   uid: string;
+  fullName: string;
   role: UserRole;
   workStatus?: string;
   skills?: string[];
   phone: number;
   email?: string;
   dailyWage: number;
-  rating: string;
+  ratingCount: number;
+  averageRating: number;
+  completedJobsCount: number;
+  totalEarnings: number;
+  memberSince: string;
 };
 
 type Location = {

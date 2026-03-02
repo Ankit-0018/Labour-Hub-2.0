@@ -8,7 +8,7 @@ import { getUserProfile } from "@/lib/services/user"
 
 export default function AuthProvider({ children }: { children: ReactNode }) {
 
-  const { setUser, setLoading } = useUserStore()
+  const { setUser, setLoading, setLocation } = useUserStore()
 
   useEffect(() => {
 
@@ -45,15 +45,27 @@ export default function AuthProvider({ children }: { children: ReactNode }) {
 
         setUser({
           uid: firebaseUser.uid,
+          fullName: profile.fullName,
           role: role as UserRole,
           dailyWage: profile.dailyWage,
           phone: profile.phone,
-          rating: profile.rating,
+          averageRating: profile.averageRating ?? 0.0,
+          ratingCount: profile.ratingCount ?? 0,
+          completedJobsCount: profile.completedJobsCount ?? 0,
           workStatus: profile.workStatus,
           email: profile.email,
-          skills: profile.skills
+          skills: profile.skills,
+          totalEarnings: profile.totalEarnings,
+          memberSince: profile.memberSince
         })
-
+        const {lat,lng,address,geohash,city} = profile?.location;
+        setLocation({
+          lat,
+          lng,
+          address,
+          geohash,
+          city
+        })
       } catch (err) {
         console.error("Auth initialization failed:", err)
         setUser(null)
@@ -65,7 +77,7 @@ export default function AuthProvider({ children }: { children: ReactNode }) {
 
     return () => unsub()
 
-  }, [setUser, setLoading])
+  }, [setUser, setLoading,setLocation])
 
   return <>{children}</>
 }

@@ -36,6 +36,7 @@ const InfoPage = () => {
     const payload = {
       skills: selectedSkills,
       dailyWage: Number(dailyWage),
+      availability: "available"
     }
     if(!user) return;
 

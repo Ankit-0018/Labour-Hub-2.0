@@ -1,28 +1,40 @@
-'use client';
+"use client";
 
 // import { Suspense } from 'react';
-import { useEffect, useState } from 'react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { WorkerNav } from '@/components/navigation/WorkerNav';
+import { useEffect, useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { WorkerNav } from "@/components/navigation/WorkerNav";
 // import JobCard  from '@/components/cards/job';
-import '@/styles/worker.css';
-import { Search as SearchIcon, Filter } from 'lucide-react';
-import { Job } from '@/lib/types/employer';
+import "@/styles/worker.css";
+import { Search as SearchIcon, Filter, User } from "lucide-react";
+import { Job } from "@/lib/types";
+import { applyToJob, getOpenJobs } from "@/lib/services/worker";
+import { useUserStore } from "@/lib/stores/useUserStore";
 
 export default function WorkerSearchPage() {
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState("");
   const [selectedSkill, setSelectedSkill] = useState<string | null>(null);
-  const [jobs , setJobs] = useState<Job[]>();
+  const [jobs, setJobs] = useState<Job[]>();
+  const {user} = useUserStore()
   const filters = [
     { label: "सब / All", value: "all" },
     { label: "तुरंत / Urgent", value: "urgent" },
     { label: "अधिक पे / High Pay", value: "highpay" },
     { label: "निकट / Nearest", value: "nearest" },
   ];
-  const filteredJobs = jobs?.filter((job) =>
-    job.title.toLowerCase().includes(searchQuery.toLowerCase())
-  ) ?? [];
+
+  useEffect(() => {
+      const fetchJobs = async () => {
+        const res = await getOpenJobs();
+        setJobs(res)
+      }
+      fetchJobs()
+  },[])
+  const filteredJobs =
+    jobs?.filter((job) =>
+      job.title.toLowerCase().includes(searchQuery.toLowerCase()),
+    ) ?? [];
 
   return (
     <div className="worker-container">
@@ -55,10 +67,14 @@ export default function WorkerSearchPage() {
         {/* Filter Tabs */}
         <div className="filter-section">
           <div className="filter-tabs">
-            {filters.map((filter) => (
+            {filters?.map((filter) => (
               <button
                 key={filter.value}
-                onClick={() => setSelectedSkill(selectedSkill === filter.value ? null : filter.value)}
+                onClick={() =>
+                  setSelectedSkill(
+                    selectedSkill === filter.value ? null : filter.value,
+                  )
+                }
                 className={`filter-tab ${selectedSkill === filter.value ? "active" : ""}`}
               >
                 {filter.label}
@@ -72,8 +88,8 @@ export default function WorkerSearchPage() {
           {filteredJobs.length > 0 ? (
             <>
               <p className="text-sm text-gray-600">
-                {filteredJobs.length} मिला / Found{" "}
-                {filteredJobs.length} nearby jobs
+                {filteredJobs.length} मिला / Found {filteredJobs.length} nearby
+                jobs
               </p>
               {filteredJobs.map((job) => (
                 <div
@@ -86,7 +102,7 @@ export default function WorkerSearchPage() {
                         {job.title}
                       </h3>
                       <p className="text-xs text-gray-600 mt-1">
-                        {job.employerId}
+                        {job.employerId.id}
                       </p>
                     </div>
                     <div className="text-right">
@@ -100,7 +116,7 @@ export default function WorkerSearchPage() {
                   <div className="flex items-center justify-between">
                     <div className="flex gap-2">
                       <span className="bg-blue-100 text-blue-700 text-xs px-2 py-1 rounded">
-                        {job.skillsRequired.map(s => (
+                        {job?.skillsRequired?.map((s) => (
                           <p>{s}</p>
                         ))}
                       </span>
@@ -110,17 +126,11 @@ export default function WorkerSearchPage() {
                     </div>
                     <div className="flex gap-2">
                       <Button
-                        variant="outline"
-                        size="sm"
-                        className="text-xs h-8 bg-transparent"
-                      >
-                        मना / Decline
-                      </Button>
-                      <Button
                         size="sm"
                         className="text-xs h-8 bg-green-600 hover:bg-green-700"
+                        onClick={() =>  applyToJob(job.id, job.employerId, user?.uid)}
                       >
-                        स्वीकार / Accept
+                        Apply To Job
                       </Button>
                     </div>
                   </div>

@@ -11,12 +11,18 @@ export const getUserProfile = async (uid: string): Promise<UserData | null>=> {
     const workerProfile = data.worker ?? null;
   return {
     uid: snap.id,
+    fullName: data.name,
     role: data.role,
-    rating: workerProfile?.averageRating,
+    averageRating: workerProfile?.averageRating,
+    memberSince: data.createdAt.toDate(),
+    ratingCount: data.ratingCount ?? 0,
+    completedJobsCount: data.completedJobsCount ?? 0,
+    totalEarnings: workerProfile?.totalEarnings ?? 0,
     phone: data.phone,
     dailyWage: workerProfile?.dailyWage ?? null,
     skills: workerProfile?.skills ?? null,
     email: data.email ?? null,
     workStatus: workerProfile?.status ?? null,
+    location: data?.location ?? null
   };
 };

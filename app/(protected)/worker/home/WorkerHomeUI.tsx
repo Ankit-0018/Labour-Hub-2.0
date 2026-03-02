@@ -1,43 +1,66 @@
 "use client";
 import { MapPin, MapPinOff, Briefcase, AlertCircle } from "lucide-react";
 import Link from "next/link";
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useUserStore } from "@/lib/stores/useUserStore";
 import { Button } from "@/components/ui/button";
-import { Skeleton } from "@/components/ui/skeleton";
 import { WorkerNav } from "@/components/navigation/WorkerNav";
 import "@/styles/worker.css";
 import { WorkerHeader } from "@/components/worker/worker-header";
 import ShareLocation from "@/components/worker/share-location";
-import { useLiveLocation } from "@/hooks/useLiveLocation";
 import Spinner from "@/components/_shared/spinner";
+import { getWorkerDashboardData, updateWorkerAvailability } from "@/lib/services/worker";
+import { WorkerStatus } from "@/lib/types";
 type Props = {
   data: {
       nearbyJobsCount: number;
       closestJobDistance: string;
       todayEarnings: number;
-       averageRating: string;
-    completedJobsCount: number;
-    ratingCount: number;
+
 };
 }
-const STATUS_OPTIONS = [
+const STATUS_OPTIONS: {
+  value: WorkerStatus;
+  label: string;
+  color: string;
+}[] = [
   { value: "available", label: "उपलब्ध / Available", color: "bg-green-500" },
   { value: "busy", label: "व्यस्त / Busy", color: "bg-yellow-500" },
   { value: "offline", label: "ऑफ़लाइन / Offline", color: "bg-gray-400" },
 ];
 
-export default function WorkerHomeUI({data} : Props) {
+export default function WorkerHomeUI() {
   const { user ,location, locationLoading } = useUserStore();
-  const [workStatus, setWorkStatusState] = useState("available");
+  const [workStatus, setWorkStatusState] = useState<WorkerStatus>("available");
+if (!user) return null;
 
-
-  const handleStatusChange = async (newStatus: string) => {
+  const handleStatusChange = async (newStatus: WorkerStatus) => {
     setWorkStatusState(newStatus);
     // TODO: Update Firebase when ready
+   try {
+     await updateWorkerAvailability(user?.uid,newStatus)
+   } catch (error) {
+    alert("failed to change the availablity");
+   }
   };
+  const [data, setData] = useState(null);
 
-  const locationEnabled = !!location;
+  useEffect(() => {
+    if (!user?.uid || !location?.lat || !location?.lng || !location?.city) return;
+
+    const loadDashboard = async () => {
+      console.log(location)
+      const res = await getWorkerDashboardData(
+        user.uid,
+        location.lat,
+        location.lng,
+        location.city
+      );
+      setData(res);
+    };
+
+    loadDashboard();
+  }, [user, location]);
 
   const statusInfo = STATUS_OPTIONS.find((s) => s.value === workStatus);
   const isWorking = workStatus !== "offline";
@@ -103,7 +126,7 @@ export default function WorkerHomeUI({data} : Props) {
               <div className="grid grid-cols-2 gap-4">
                 <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-200">
                   <div className="text-2xl font-bold text-blue-600">
-                    {data.nearbyJobsCount}
+                    {data?.nearbyJobsCount ?? 0}
                   </div>
                   <p className="text-xs text-gray-600 mt-1">
                     पास में काम / Nearby Jobs
@@ -111,7 +134,7 @@ export default function WorkerHomeUI({data} : Props) {
                 </div>
                 <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-200">
                   <div className="text-2xl font-bold text-green-600">
-                    {data.closestJobDistance}
+                    {data?.closestJobDistance ?? 0}
                   </div>
                   <p className="text-xs text-gray-600 mt-1">
                     निकटतम काम / Closest Job
@@ -120,12 +143,12 @@ export default function WorkerHomeUI({data} : Props) {
               </div>
 
               {/* Earnings Card */}
-              <div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-xl p-4 border border-green-200">
+              <div className="bg-linear-to-br from-green-50 to-emerald-50 rounded-xl p-4 border border-green-200">
                 <p className="text-xs text-gray-600 mb-1">
                   आज की कमाई / Today&apos;s Earnings
                 </p>
                 <p className="text-3xl font-bold text-green-600">
-                  ₹{data.todayEarnings}
+                  ₹{data?.todayEarnings}
                 </p>
               </div>
 
@@ -166,13 +189,13 @@ export default function WorkerHomeUI({data} : Props) {
                   पूर्ण किए गए काम / Jobs Done
                 </span>
                 <span className="text-sm font-semibold text-gray-900">
-                  {data.completedJobsCount}
+                  {user?.completedJobsCount}
                 </span>
               </div>
               <div className="border-t border-gray-200 pt-3 flex items-center justify-between">
                 <span className="text-xs text-gray-600">रेटिंग / Rating</span>
                 <span className="text-sm font-semibold text-yellow-500">
-                  {data.averageRating} ⭐ ({data.ratingCount})
+                  {user?.averageRating} ⭐ ({user?.ratingCount})
                 </span>
               </div>
             </div>
