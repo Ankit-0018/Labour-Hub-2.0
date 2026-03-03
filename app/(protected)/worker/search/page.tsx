@@ -1,22 +1,22 @@
 "use client";
 
-// import { Suspense } from 'react';
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { WorkerNav } from "@/components/navigation/WorkerNav";
-// import JobCard  from '@/components/cards/job';
 import "@/styles/worker.css";
-import { Search as SearchIcon, Filter, User } from "lucide-react";
+import { Search as SearchIcon, Filter } from "lucide-react";
 import { Job } from "@/lib/types";
-import { applyToJob, getOpenJobs } from "@/lib/services/worker";
+import { getOpenJobs } from "@/lib/services/worker";
 import { useUserStore } from "@/lib/stores/useUserStore";
 
 export default function WorkerSearchPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedSkill, setSelectedSkill] = useState<string | null>(null);
-  const [jobs, setJobs] = useState<Job[]>();
-  const {user} = useUserStore()
+  const [jobs, setJobs] = useState<Job[] | undefined>();
+  const router = useRouter();
+  const { user } = useUserStore();
   const filters = [
     { label: "सब / All", value: "all" },
     { label: "तुरंत / Urgent", value: "urgent" },
@@ -25,16 +25,30 @@ export default function WorkerSearchPage() {
   ];
 
   useEffect(() => {
-      const fetchJobs = async () => {
-        const res = await getOpenJobs();
-        setJobs(res)
-      }
-      fetchJobs()
-  },[])
+    const fetchJobs = async () => {
+      const res = await getOpenJobs();
+      setJobs(res as Job[]);
+    };
+    fetchJobs();
+  }, []);
+
   const filteredJobs =
     jobs?.filter((job) =>
       job.title.toLowerCase().includes(searchQuery.toLowerCase()),
     ) ?? [];
+
+  const handleViewJob = (jobId: string) => {
+    // Navigate to job details page
+    router.push(`/worker/jobs/${jobId}`);
+  };
+
+  const handleViewEmployer = (employer: any) => {
+    // Navigate to employer profile page
+    const employerId = typeof employer === "string" ? employer : employer?.id;
+    if (employerId) {
+      router.push(`/worker/employer/${employerId}`);
+    }
+  };
 
   return (
     <div className="worker-container">
@@ -102,7 +116,9 @@ export default function WorkerSearchPage() {
                         {job.title}
                       </h3>
                       <p className="text-xs text-gray-600 mt-1">
-                        {job.employerId.id}
+                        {typeof job.employerId === "string"
+                          ? job.employerId
+                          : job.employerId?.id || "Unknown"}
                       </p>
                     </div>
                     <div className="text-right">
@@ -117,7 +133,7 @@ export default function WorkerSearchPage() {
                     <div className="flex gap-2">
                       <span className="bg-blue-100 text-blue-700 text-xs px-2 py-1 rounded">
                         {job?.skillsRequired?.map((s) => (
-                          <p>{s}</p>
+                          <p key={s}>{s}</p>
                         ))}
                       </span>
                       <span className="bg-gray-100 text-gray-700 text-xs px-2 py-1 rounded">
@@ -127,10 +143,20 @@ export default function WorkerSearchPage() {
                     <div className="flex gap-2">
                       <Button
                         size="sm"
-                        className="text-xs h-8 bg-green-600 hover:bg-green-700"
-                        onClick={() =>  applyToJob(job.id, job.employerId, user?.uid)}
+                        className="text-xs h-8"
+                        onClick={() => handleViewJob(job.id)}
                       >
-                        Apply To Job
+                        View Job
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="text-xs h-8"
+                        onClick={() =>
+                          handleViewEmployer(job.employerId)
+                        }
+                      >
+                        View Employer
                       </Button>
                     </div>
                   </div>

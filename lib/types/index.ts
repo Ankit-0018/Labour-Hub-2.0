@@ -11,7 +11,7 @@ export type Job = {
   skillsRequired: Array<string>;
   wage: number;
   duration: string;
-  employerId: string;
+  employerId: any;
   status: "open" | "assigned" | "completed" | "cancelled";
 };
 
