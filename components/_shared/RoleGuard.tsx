@@ -32,9 +32,9 @@ export default function RoleGuard({
 
   if (loading)
     return (
-     <div className="flex items-center justify-center h-screen">
-  <Spinner />
-</div>
+      <div className="flex items-center justify-center h-screen">
+        <Spinner />
+      </div>
     );
 
   if (!user || user.role !== role) return null;

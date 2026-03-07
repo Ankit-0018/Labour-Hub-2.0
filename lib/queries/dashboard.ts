@@ -32,6 +32,16 @@ export async function getWorkerDashboard(
     (a: any) => a.status === "completed"
   );
 
+  const now = new Date();
+  const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+
+  const todayEarnings = completedAssignments
+    .filter((a: any) => {
+      const d = new Date(a.completedAt || a.updatedAt || a.assignedAt || 0);
+      return d >= todayStart;
+    })
+    .reduce((sum: number, a: any) => sum + Number(a.wage || 0), 0);
+
   return {
     nearbyJobs,
     nearbyJobsCount: nearbyJobs.length,
@@ -42,7 +52,7 @@ export async function getWorkerDashboard(
     assignments,
     activeAssignments,
     completedAssignments,
-    todayEarnings: 0, // calculated from earnings collection if needed
+    todayEarnings,
   };
 }
 

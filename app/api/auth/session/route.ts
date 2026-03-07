@@ -16,11 +16,14 @@ export async function POST(req: NextRequest) {
     maxAge: 60 * 60, // 1 hour to match Firebase token expiry
   });
 
-  // Get user role and store in separate cookie
+  // Get user role and context to store in separate cookies for Edge Middleware interception
   try {
     const decoded = await adminAuth.verifyIdToken(token);
     const userDoc = await adminDb.collection("users").doc(decoded.uid).get();
-    const role = userDoc.data()?.role || "none";
+    const data = userDoc.data();
+    
+    const role = data?.role || "none";
+    const profileCompleted = data?.profileCompleted ? "true" : "false";
     
     res.cookies.set("user_role", role, {
       httpOnly: true,
@@ -29,8 +32,16 @@ export async function POST(req: NextRequest) {
       path: "/",
       maxAge: 60 * 60,
     });
+
+    res.cookies.set("profile_completed", profileCompleted, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production" || false,
+      sameSite: "lax",
+      path: "/",
+      maxAge: 60 * 60,
+    });
   } catch (error) {
-    console.error("Error getting user role:", error);
+    console.error("Error getting user identity claims:", error);
   }
 
   return res;

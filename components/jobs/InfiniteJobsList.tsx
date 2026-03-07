@@ -38,7 +38,6 @@ export function InfiniteJobsList({ searchQuery }: InfiniteJobsListProps) {
     );
 
     useEffect(() => {
-        console.log("fetchJobs")
         fetchJobs();
     }, [fetchJobs]);
 

@@ -1,6 +1,6 @@
 "use client"
 
-import { db } from "@/lib/firebase/firebase"
+import { db, auth } from "@/lib/firebase/firebase"
 import { useUserStore } from "@/lib/stores/useUserStore"
 import { doc, updateDoc } from "firebase/firestore"
 import { useRouter } from "next/navigation"
@@ -45,6 +45,16 @@ const InfoPage = () => {
   profileCompleted: true,
   worker: payload
 })
+
+  // Refresh session cookie so middleware knows profile is complete
+  if (auth.currentUser) {
+    const token = await auth.currentUser.getIdToken(true);
+    await fetch("/api/auth/session", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ token }),
+    });
+  }
 
   router.push("/worker/home")
 

@@ -51,16 +51,15 @@ export default function AuthProvider({ children }: { children: ReactNode }) {
           role: role as UserRole,
           dailyWage: profile.dailyWage,
           phone: profile.phone,
-          averageRating: profile.averageRating ?? 0.0,
-          ratingCount: profile.ratingCount ?? 0,
-          completedJobsCount: profile.completedJobsCount ?? 0,
+          averageRating: profile?.averageRating ?? 0.0,
+          ratingCount: profile?.ratingCount ?? 0,
+          completedJobsCount: profile?.completedJobsCount ?? 0,
           workStatus: profile.workStatus,
           email: profile.email,
-          skills: profile.skills,
-          totalEarnings: profile.totalEarnings,
-          memberSince: profile.memberSince
+          skills: profile?.skills,
+          totalEarnings: profile?.totalEarnings,
+          memberSince: profile?.memberSince
         })
-        console.log("Profile........" , profile)
         if (profile.location) {
           const { lat, lng, address, geohash, city } = profile.location;
           setLocation({
