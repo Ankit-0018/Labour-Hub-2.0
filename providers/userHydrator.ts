@@ -1,14 +1,20 @@
 "use client";
 
 import { useEffect } from "react";
-import { useUserStore } from "@/lib/stores/useUserStore";
+import { UserData, useUserStore } from "@/lib/stores/useUserStore";
 
-export default function UserHydrator({ user } : any) {
+
+export default function UserHydrator({ user }: { user: UserData }) {
   const setUser = useUserStore((s) => s.setUser);
   const setHydrated = useUserStore((s) => s.setHydrated);
 
   useEffect(() => {
-    setUser(user);
+    useUserStore.persist.rehydrate();
+    
+    if (user) {
+      setUser(user);
+    }
+    
     setHydrated();
   }, [user, setUser, setHydrated]);
 

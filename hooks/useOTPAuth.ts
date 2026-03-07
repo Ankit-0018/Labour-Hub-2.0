@@ -28,18 +28,18 @@ const extractMobile = (input: string): string | null => {
   setNumErr(null); // Clear old errors
   let m = input.trim().replace(/\D/g, ""); // remove spaces, +, -, etc.
   if (!m) {
-    setNumErr("Required / आवश्यक");
+    setNumErr("Required");
     return null;
   }
   // remove 91, +91, 0
   if (m.startsWith("91")) m = m.slice(2);
   if (m.startsWith("0")) m = m.slice(1);
   if (m.length !== 10) {
-    setNumErr("Must be 10 digits / 10 अंक");
+    setNumErr("Must be 10 digits");
     return null;
   }
   if (!/^[6-9]\d{9}$/.test(m)) {
-    setNumErr("Invalid number / गलत नंबर");
+    setNumErr("Invalid number");
     return null;
   }
   return m; // VALID
@@ -49,7 +49,7 @@ const extractMobile = (input: string): string | null => {
  const sendOTP = async (): Promise<OTPResult> => {
   if (authMode === "register") {
     if (!name.trim() || name.length < 3) {
-      setNameErr("Enter Full Name / पूरा नाम डालें");
+      setNameErr("Enter Full Name");
       return { success: false };
     }
   }

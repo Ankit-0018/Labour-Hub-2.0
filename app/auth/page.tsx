@@ -4,15 +4,14 @@ import type React from "react";
 import Link from "next/link";
 import { useOTPAuth } from "@/hooks/useOTPAuth";
 import { CustomOTPInput } from "@/components/_shared/otp-input";
-import { useSearchParams, useRouter } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { doc, getDoc, setDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase/firebase";
-import { set } from "zod";
 import { setSession } from "@/lib/utils/auth/session";
 
 export default function AuthPage() {
   const searchParams = useSearchParams();
-  const router = useRouter();
+  // const router = useRouter();
 
   const mode = searchParams.get("mode") === "register" ? "register" : "login";
 
@@ -50,6 +49,7 @@ export default function AuthPage() {
     const userSnap = await getDoc(userRef);
 
     const token = await user.getIdToken();
+    
     if (mode === "register") {
       if (userSnap.exists()) {
         alert("Account already exists. Please login.");
@@ -57,12 +57,21 @@ export default function AuthPage() {
         return;
       }
 
+      // Create new user document with no role
       await setDoc(userRef, {
         name,
         phone: user.phoneNumber,
         role: null,
+        profileCompleted: false,
         createdAt: new Date(),
       });
+
+      // Set session cookie
+      await setSession(token);
+
+      // Redirect to choose-role page
+      window.location.href = "/choose-role";
+      return;
     }
 
     if (mode === "login") {
@@ -71,11 +80,19 @@ export default function AuthPage() {
         window.location.href = "/auth?mode=register";
         return;
       }
+
+      const userRole = userSnap.data()?.role ?? null;
+
+      // Set session cookie
+      await setSession(token);
+
+      // Redirect based on role - middleware will handle the final routing
+      if (userRole && userRole !== "null") {
+        window.location.href = `/${userRole}/home`;
+      } else {
+        window.location.href = "/choose-role";
+      }
     }
-
-   await setSession(token)
-
-    window.location.href = "/";
   };
 
   return (
@@ -85,7 +102,7 @@ export default function AuthPage() {
           <div className="text-center mb-8">
             <h1 className="text-2xl font-bold text-black mb-1">Labour Hub</h1>
             <p className="text-sm text-gray-500">
-              {mode === "register" ? "Register/रजिस्टर" : "Login/लॉग इन"}
+              {mode === "register" ? "Register" : "Login"}
             </p>
           </div>
 
@@ -93,13 +110,13 @@ export default function AuthPage() {
             {mode === "register" && !confirmationResult && (
               <div className="relative space-y-2">
                 <label className="block text-sm font-medium text-black">
-                  Full Name / पूरा नाम
+                  Full Name
                 </label>
                 <input
                   type="text"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  placeholder="eg. अंकित कुमार"
+                  placeholder="e.g. John Smith"
                   className="w-full px-4 py-3 bg-gray-100 rounded-xl"
                   required
                 />
@@ -110,7 +127,7 @@ export default function AuthPage() {
             {!confirmationResult && (
               <div className="space-y-2">
                 <label className="block text-sm font-medium text-black">
-                  Mobile no./मोबाइल नं.
+                  Mobile Number
                 </label>
                 <input
                   type="tel"
@@ -147,7 +164,7 @@ export default function AuthPage() {
                 href="/auth?mode=register"
                 className="text-sm text-blue-500 hover:underline"
               >
-                Create new account / रजिस्टर करें ?
+                Create a New Account
               </Link>
             ) : (
               <Link

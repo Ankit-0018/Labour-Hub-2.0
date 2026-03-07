@@ -1,63 +1,68 @@
 "use client";
 
 import { useUserStore } from "@/lib/stores/useUserStore";
+import { syncLocation } from "@/lib/utils/location/synclocation";
 import { useEffect, useRef, useState } from "react";
 
-export interface Location {
-  lat: number;
-  lng: number;
-}
-
 export function useLiveLocation() {
-  const { setLocation, setLocationError, setLocationPermission } = useUserStore();
+  const {
+    location,
+    setLocation,
+    setLocationError,
+    setLocationPermission,
+    setLocationLoading,
+    locationLoading,
+    isTracking,
+    setTracking,
+    clearLocation,
+  } = useUserStore();
   const watchIdRef = useRef<number | null>(null);
 
   const startTracking = () => {
-    if (watchIdRef.current !== null) return; // 🛑 already tracking
+  if (watchIdRef.current !== null) return;
 
-    if (!navigator.geolocation) {
-      setLocationError("Geolocation not supported");
-      return;
-    }
+  if (!navigator.geolocation) {
+    setLocationError("Geolocation not supported");
+    return;
+  }
 
-    watchIdRef.current = navigator.geolocation.watchPosition(
-      (pos) => {
-        setLocationPermission("granted");
+  setLocationLoading(true); // 🔥 here
 
-        setLocation({
-          lat: pos.coords.latitude,
-          lng: pos.coords.longitude,
-          accuracy: pos.coords.accuracy,
-          timestamp: Date.now(),
-        });
-      },
-      (err) => {
+  watchIdRef.current = navigator.geolocation.watchPosition(
+    async (pos) => {
+      setLocationPermission("granted");
+      const newLocation = {
+        lat: pos.coords.latitude,
+        lng: pos.coords.longitude,
+      };
+
+      try {
+        setLocation(newLocation);
+        setLocationLoading(true)
+        await syncLocation(newLocation);
+        setTracking(true);
+      } catch (err: any) {
         setLocationPermission("denied");
         setLocationError(err.message);
-      },
-      {
-        enableHighAccuracy: true,
-        maximumAge: 5000,
-        timeout: 10000,
-      },
-    );
-  };
-
+      } finally {
+        setLocationLoading(false); // 🔥 stop after first fix
+      }
+    }
+  )}
   const stopTracking = () => {
     if (watchIdRef.current === null) return;
 
+    clearLocation();
     navigator.geolocation.clearWatch(watchIdRef.current);
     watchIdRef.current = null;
+    setTracking(false)
   };
 
-  // auto stop when component unmounts
-  useEffect(() => {
-    return () => stopTracking();
-  }, []);
 
   return {
     startTracking,
     stopTracking,
-    isTracking: watchIdRef.current !== null,
+    isTracking,
+    locationLoading
   };
 }

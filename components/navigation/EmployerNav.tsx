@@ -2,17 +2,19 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, Users, PlusCircle } from "lucide-react";
+import { Home, Briefcase, ClipboardList, PlusCircle, User } from "lucide-react";
 
 export function EmployerNav() {
   const pathname = usePathname();
 
-  const isActive = (path: string) => pathname === path;
+  const isActive = (path: string) => pathname?.startsWith(path);
 
   const navItems = [
-    { label: "घर / Home", href: "/employer/home", icon: Home },
-    { label: "खोज / Search", href: "/employer/search-workers", icon: Users },
-    { label: "पोस्ट / Post", href: "/employer/post-job", icon: PlusCircle },
+    { label: "Home", href: "/employer/home", icon: Home },
+    { label: "Jobs", href: "/employer/my-jobs", icon: Briefcase },
+    { label: "Post", href: "/employer/post-job", icon: PlusCircle },
+    { label: "Work", href: "/employer/assignments", icon: ClipboardList },
+    { label: "Profile", href: "/employer/profile", icon: User },
   ];
 
   return (
@@ -28,8 +30,8 @@ export function EmployerNav() {
               className={`bottom-nav-item ${active ? "active" : ""}`}
               aria-current={active ? "page" : undefined}
             >
-              <Icon 
-                className="bottom-nav-icon" 
+              <Icon
+                className="bottom-nav-icon"
                 strokeWidth={active ? 2.5 : 2}
               />
               <span className="text-[0.7rem] font-medium">{item.label}</span>
@@ -40,4 +42,3 @@ export function EmployerNav() {
     </nav>
   );
 }
-

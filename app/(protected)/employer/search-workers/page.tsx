@@ -199,7 +199,7 @@ export default function SearchWorkersPage() {
               {/* Bottom */}
               <div className="flex justify-between items-center">
                 <div>
-                  <p className="text-xs text-gray-600">दैनिक दर / Daily</p>
+                  <p className="text-xs text-gray-600">Daily Rate</p>
                   <p className="text-lg font-bold text-green-600">
                     ₹{w.wage}
                   </p>
@@ -208,13 +208,13 @@ export default function SearchWorkersPage() {
                 <div className="flex gap-2">
                   <Link href={`/employer/worker/${w.id}`}>
                     <Button variant="outline" size="sm">
-                      प्रोफाइल / Profile
+                      View Profile
                     </Button>
                   </Link>
 
                   <Button size="sm" className="bg-blue-600">
                     <Briefcase className="w-3 h-3 mr-1" />
-                    नौकरी दें / Hire
+                    Hire
                   </Button>
                 </div>
               </div>
