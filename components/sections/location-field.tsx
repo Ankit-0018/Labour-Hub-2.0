@@ -4,6 +4,8 @@ import { useLiveLocation } from "@/hooks/useLiveLocation";
 import { MapPin } from "lucide-react";
 import dynamic from "next/dynamic";
 import { useUserStore } from "@/lib/stores/useUserStore";
+import { clearLocation } from "@/lib/actions/location";
+import { useEffect } from "react";
 
 const LiveMap = dynamic(() => import("@/components/common/LiveMap"), {
   ssr: false,
@@ -14,16 +16,30 @@ interface LocationFieldProps {
 }
 
 export default function LocationField({ showMap = false }: LocationFieldProps) {
-  const {location , locationError} = useUserStore();
-  const {  startTracking, stopTracking, isTracking } = useLiveLocation();
+  const {user, location , locationError ,locationLoading} = useUserStore();
+  const {  startTracking, isTracking, stopTracking } = useLiveLocation();
+  if(!user) return;
 
+  const handleClearLocation = async () => {
+    stopTracking();
+    try {
+      await clearLocation(user?.uid);
+      
+    } catch (error) {
+      alert("Failed to clear the location from db");
+    }
+  
+  }
+useEffect(() => {
+console.log("User: " , user.uid + "Location: " , location + "User details: " , user)
+},[])
   return (
     <div className="space-y-3">
       {/* Location display */}
       <div className="flex items-center gap-2 p-3 bg-blue-50 border border-blue-200 rounded-lg">
         <MapPin className="w-5 h-5 text-blue-600 shrink-0" />
 
-        {isTracking? (
+        {locationLoading ? (
           <span className="text-sm text-gray-600">
             Detecting location…
           </span>
@@ -59,7 +75,7 @@ export default function LocationField({ showMap = false }: LocationFieldProps) {
       {/* Action */}
       <button
         type="button"
-        onClick={location ? stopTracking : startTracking}
+        onClick={location ? handleClearLocation : startTracking}
         className={`px-3 py-1.5 text-xs font-medium rounded-md text-white ${
           location
             ? "bg-red-600 hover:bg-red-700"

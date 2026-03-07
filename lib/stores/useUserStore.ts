@@ -17,6 +17,7 @@ export type UserData = {
   completedJobsCount: number;
   totalEarnings: number;
   memberSince: string;
+  location?: Location | null;
 };
 
 type Location = {

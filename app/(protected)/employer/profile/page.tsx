@@ -20,6 +20,8 @@ import {
 import { auth, db } from "@/lib/firebase/firebase";
 import { signOut } from "firebase/auth";
 import { doc, getDoc } from "firebase/firestore";
+import Spinner from "@/components/_shared/spinner";
+import { getEmployerDashboard } from "@/lib/queries/dashboard";
 
 type EmployerProfile = {
   name: string;
@@ -56,18 +58,19 @@ export default function EmployerProfilePage() {
 
         if (userSnap.exists()) {
           const userData = userSnap.data();
+          const dash = await getEmployerDashboard(auth.currentUser!.uid);
           setProfile({
             name: userData.name || "Employer Name",
             phone: auth.currentUser.phoneNumber || "Not set",
             email: userData.email || "Not set",
-            location: userData.location || "Sector 5, Gurgaon",
+            location: userData.location?.address || userData.location?.city || "Not set",
             companyName: userData.companyName || "My Company",
             businessType: userData.businessType || "Construction",
-            rating: userData.rating || 4.5,
-            reviews: userData.reviews || 32,
-            jobsPosted: userData.jobsPosted || 45,
-            activeJobs: userData.activeJobs || 8,
-            memberSince: "January 2024",
+            rating: userData.rating || 0,
+            reviews: userData.reviews || 0,
+            jobsPosted: dash.allJobs.length,
+            activeJobs: dash.activeJobs.length,
+            memberSince: userData.createdAt ? new Date(userData.createdAt).toLocaleDateString() : "Recently",
             isVerified: userData.isVerified || false,
           });
         }
@@ -102,10 +105,7 @@ export default function EmployerProfilePage() {
     return (
       <div className="worker-container">
         <div className="worker-layout flex items-center justify-center h-screen">
-          <div className="text-center">
-            <div className="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-            <p className="text-gray-600">Loading...</p>
-          </div>
+          <Spinner />
         </div>
       </div>
     );

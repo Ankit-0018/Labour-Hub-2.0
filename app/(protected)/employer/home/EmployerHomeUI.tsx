@@ -1,13 +1,17 @@
-import { Plus, Users } from "lucide-react";
+"use client";
+
+import { Plus, Users, Briefcase, ClipboardList } from "lucide-react";
 import Link from "next/link";
 import { EmployerNav } from "@/components/navigation/EmployerNav";
-import { EmployerDashboardStats, Job } from "@/lib/types";
+import { EmployerDashboardData, Job, Application } from "@/lib/types";
+
 type Props = {
-  stats: EmployerDashboardStats;
-  activeJobs: Job[];
+  data: EmployerDashboardData;
 };
 
-const EmployerHomeUI = ({ stats, activeJobs } : Props) => {
+export default function EmployerHomeUI({ data }: Props) {
+  const { stats, activeJobs, pendingApplications, activeAssignments } = data;
+
   return (
     <div className="min-h-screen bg-linear-to-b from-blue-50 to-white pb-24">
       {/* Header */}
@@ -36,7 +40,7 @@ const EmployerHomeUI = ({ stats, activeJobs } : Props) => {
           />
           <Stat
             value={stats.applicationsCount}
-            label="आवेदन / Applications"
+            label="लंबित आवेदन / Pending"
             color="text-green-600"
           />
           <Stat
@@ -57,81 +61,165 @@ const EmployerHomeUI = ({ stats, activeJobs } : Props) => {
             />
           </Link>
 
+          <Link href="/employer/my-jobs">
+            <ActionCard
+              icon={<Briefcase className="w-10 h-10" />}
+              title="मेरी नौकरियाँ"
+              subtitle="My Jobs & Applications"
+              color="from-green-600 to-green-700"
+            />
+          </Link>
+
+          <Link href="/employer/assignments">
+            <ActionCard
+              icon={<ClipboardList className="w-10 h-10" />}
+              title="काम प्रबंधन"
+              subtitle="Manage Assignments"
+              color="from-purple-600 to-purple-700"
+            />
+          </Link>
+
           <Link href="/employer/search-workers">
             <ActionCard
               icon={<Users className="w-10 h-10" />}
               title="मजदूर खोजें"
               subtitle="Search workers"
-              color="from-green-600 to-green-700"
+              color="from-orange-600 to-orange-700"
             />
           </Link>
         </div>
 
         {/* Active Jobs */}
         <div className="bg-white rounded-2xl p-6 border shadow-sm">
-          <h3 className="text-lg font-bold mb-4">
-            आपकी सक्रिय नौकरियाँ / Your Active Jobs
-          </h3>
-
-          {activeJobs.map((job: any) => (
-            <div key={job.id} className="border rounded-lg p-4 mb-3">
-              <div className="flex justify-between mb-2">
-                <div>
-                  <h4 className="font-semibold">{job.title}</h4>
-                  <p className="text-sm text-gray-600">{job.description}</p>
-                </div>
-
-                <div className="text-right">
-                  <p className="font-bold text-green-600">₹{job.wage}</p>
-                  <p className="text-xs text-gray-600">{job.duration}</p>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-
-        {/* Recent Hires */}
-        <div className="bg-white rounded-2xl p-6 border shadow-sm">
-          <h3 className="text-lg font-bold mb-4">हाल के काम / Recent Hires</h3>
-
-          {[1, 2].map((hire) => (
-            <div
-              key={hire}
-              className="border rounded-lg p-4 flex justify-between mb-3"
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-lg font-bold">
+              सक्रिय नौकरियाँ / Active Jobs
+            </h3>
+            <Link
+              href="/employer/my-jobs"
+              className="text-sm text-blue-600 font-medium"
             >
-              <div className="flex gap-3 items-center">
-                <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
-                  👨‍🔧
-                </div>
-                <div>
-                  <p className="font-semibold">
-                    {hire === 1 ? "Rajesh Kumar" : "Amit Singh"}
-                  </p>
-                  <p className="text-xs text-gray-600">
-                    {hire === 1
-                      ? "Electrician / इलेक्ट्रीशियन"
-                      : "Mason / मिस्त्री"}
-                  </p>
-                </div>
-              </div>
+              सब देखें →
+            </Link>
+          </div>
 
-              <div className="text-right">
-                <p className="font-semibold">⭐ 4.8</p>
-                <p className="text-xs text-gray-600">
-                  {hire === 1 ? "45 reviews" : "32 reviews"}
-                </p>
-              </div>
-            </div>
-          ))}
+          {activeJobs.length > 0 ? (
+            activeJobs.slice(0, 5).map((job: Job) => (
+              <Link
+                key={job.id}
+                href={`/employer/my-jobs/${job.id}/applications`}
+                className="block border rounded-lg p-4 mb-3 hover:shadow-md transition group"
+              >
+                <div className="flex justify-between mb-2">
+                  <div>
+                    <h4 className="font-semibold group-hover:text-blue-600 transition-colors">
+                      {job.title}
+                    </h4>
+                    <p className="text-sm text-gray-600">
+                      {job.description?.substring(0, 60)}
+                    </p>
+                  </div>
+                  <div className="text-right">
+                    <p className="font-bold text-green-600">₹{job.wage}</p>
+                    <p className="text-xs text-gray-600">{job.duration}</p>
+                  </div>
+                </div>
+                <div className="flex gap-2 flex-wrap">
+                  {job.skillsRequired?.map((skill) => (
+                    <span
+                      key={skill}
+                      className="bg-blue-50 text-blue-700 text-[10px] px-2 py-0.5 rounded font-medium"
+                    >
+                      {skill}
+                    </span>
+                  ))}
+                </div>
+              </Link>
+            ))
+          ) : (
+            <p className="text-gray-500 text-sm text-center py-8">
+              कोई सक्रिय नौकरी नहीं / No active jobs
+            </p>
+          )}
         </div>
+
+        {/* Pending Applications */}
+        {pendingApplications.length > 0 && (
+          <div className="bg-white rounded-2xl p-6 border shadow-sm">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-bold">
+                लंबित आवेदन / Pending Applications
+              </h3>
+              <span className="bg-yellow-100 text-yellow-700 text-xs font-bold px-3 py-1 rounded-full">
+                {pendingApplications.length}
+              </span>
+            </div>
+
+            {pendingApplications.slice(0, 5).map((app: Application) => (
+              <Link
+                key={app.id}
+                href={`/employer/my-jobs/${app.jobId}/applications`}
+                className="block border rounded-lg p-4 mb-3 hover:shadow-md transition"
+              >
+                <div className="flex justify-between items-center">
+                  <div>
+                    <p className="font-semibold text-sm">
+                      {app.jobTitle || "Job Application"}
+                    </p>
+                    <p className="text-xs text-gray-500">
+                      Worker: {app.workerId}
+                    </p>
+                  </div>
+                  <span className="text-[10px] font-bold px-2 py-1 rounded-full bg-yellow-50 text-yellow-600 border border-yellow-100">
+                    PENDING
+                  </span>
+                </div>
+              </Link>
+            ))}
+          </div>
+        )}
+
+        {/* Active Assignments */}
+        {activeAssignments.length > 0 && (
+          <div className="bg-white rounded-2xl p-6 border shadow-sm">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-bold">
+                चल रहे काम / Active Assignments
+              </h3>
+              <Link
+                href="/employer/assignments"
+                className="text-sm text-blue-600 font-medium"
+              >
+                सब देखें →
+              </Link>
+            </div>
+
+            {activeAssignments.slice(0, 3).map((assign: any) => (
+              <div
+                key={assign.id}
+                className="border rounded-lg p-4 mb-3 flex justify-between items-center"
+              >
+                <div>
+                  <p className="font-semibold text-sm">
+                    Worker: {assign.workerId}
+                  </p>
+                  <p className="text-xs text-gray-500">
+                    Job: {assign.jobId}
+                  </p>
+                </div>
+                <span className="text-[10px] font-bold px-2 py-1 rounded-full bg-green-50 text-green-600 border border-green-100">
+                  ACTIVE
+                </span>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
 
       <EmployerNav />
     </div>
   );
-};
-
-export default EmployerHomeUI;
+}
 
 function Stat({
   value,

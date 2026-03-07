@@ -1,5 +1,5 @@
 "use client";
-import { MapPin, MapPinOff, Briefcase, AlertCircle } from "lucide-react";
+import { MapPin, Briefcase, AlertCircle } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useUserStore } from "@/lib/stores/useUserStore";
@@ -9,16 +9,10 @@ import "@/styles/worker.css";
 import { WorkerHeader } from "@/components/worker/worker-header";
 import ShareLocation from "@/components/worker/share-location";
 import Spinner from "@/components/_shared/spinner";
-import { getWorkerDashboardData, updateWorkerAvailability } from "@/lib/services/worker";
-import { WorkerStatus } from "@/lib/types";
-type Props = {
-  data: {
-      nearbyJobsCount: number;
-      closestJobDistance: string;
-      todayEarnings: number;
+import { getWorkerDashboard } from "@/lib/queries/dashboard";
+import { updateWorkerAvailability } from "@/lib/actions/worker";
+import { WorkerStatus, WorkerDashboardData } from "@/lib/types";
 
-};
-}
 const STATUS_OPTIONS: {
   value: WorkerStatus;
   label: string;
@@ -30,33 +24,41 @@ const STATUS_OPTIONS: {
 ];
 
 export default function WorkerHomeUI() {
-  const { user ,location, locationLoading } = useUserStore();
+  const { user, location, locationLoading } = useUserStore();
   const [workStatus, setWorkStatusState] = useState<WorkerStatus>("available");
-if (!user) return null;
+  const [data, setData] = useState<WorkerDashboardData | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  if (!user) return null;
 
   const handleStatusChange = async (newStatus: WorkerStatus) => {
     setWorkStatusState(newStatus);
-    // TODO: Update Firebase when ready
-   try {
-     await updateWorkerAvailability(user?.uid,newStatus)
-   } catch (error) {
-    alert("failed to change the availablity");
-   }
+    try {
+      await updateWorkerAvailability(user.uid, newStatus);
+    } catch (error) {
+      alert("Failed to change availability");
+    }
   };
-  const [data, setData] = useState(null);
 
   useEffect(() => {
-    if (!user?.uid || !location?.lat || !location?.lng || !location?.city) return;
+    if (!user?.uid || !location?.lat || !location?.lng)
+      return;
 
     const loadDashboard = async () => {
-      console.log(location)
-      const res = await getWorkerDashboardData(
-        user.uid,
-        location.lat,
-        location.lng,
-        location.city
-      );
-      setData(res);
+      setLoading(true);
+      try {
+        const res = await getWorkerDashboard(
+          user.uid,
+          location.lat,
+          location.lng,
+          location.city ?? ""
+        );
+        setData(res);
+      } catch (error) {
+        console.error("Error loading dashboard:", error);
+      } finally {
+        setLoading(false);
+      }
     };
 
     loadDashboard();
@@ -69,13 +71,17 @@ if (!user) return null;
     <div className="worker-container">
       <div className="worker-layout">
         <WorkerHeader title="Labour Hub" />
+
         {/* Location Info */}
         <div className="location-info">
           <MapPin className="w-4 h-4" />
-         
-          {locationLoading ? <Spinner /> :  <span className="text-sm">
-            {location ? `${location.address}` : "Location disabled"}
-          </span> }
+          {locationLoading ? (
+            <Spinner />
+          ) : (
+            <span className="text-sm">
+              {location ? `${location.address}` : "Location disabled"}
+            </span>
+          )}
         </div>
 
         {/* Main Content */}
@@ -134,7 +140,7 @@ if (!user) return null;
                 </div>
                 <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-200">
                   <div className="text-2xl font-bold text-green-600">
-                    {data?.closestJobDistance ?? 0}
+                    {data?.closestJobDistance ?? "N/A"}
                   </div>
                   <p className="text-xs text-gray-600 mt-1">
                     निकटतम काम / Closest Job
@@ -148,7 +154,7 @@ if (!user) return null;
                   आज की कमाई / Today&apos;s Earnings
                 </p>
                 <p className="text-3xl font-bold text-green-600">
-                  ₹{data?.todayEarnings}
+                  ₹{data?.todayEarnings ?? 0}
                 </p>
               </div>
 
@@ -170,11 +176,16 @@ if (!user) return null;
             <div className="space-y-3">
               <div className="flex items-center justify-between">
                 <span className="text-xs text-gray-600">कौशल / Skill</span>
-                
+                <div className="flex gap-1 flex-wrap justify-end">
                   {user?.skills?.map((skill, idx) => (
-                    <span key={idx} className="text-sm font-semibold text-gray-900">{skill}</span>
+                    <span
+                      key={idx}
+                      className="text-sm font-semibold text-gray-900"
+                    >
+                      {skill}
+                    </span>
                   ))}
-                
+                </div>
               </div>
               <div className="border-t border-gray-200 pt-3 flex items-center justify-between">
                 <span className="text-xs text-gray-600">

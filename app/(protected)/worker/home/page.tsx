@@ -1,13 +1,12 @@
-import { getWorkerDashboardData } from "@/lib/services/worker";
+import { getWorkerDashboard } from "@/lib/queries/dashboard";
 import WorkerHomeUI from "./WorkerHomeUI";
-import { useUserStore } from "@/lib/stores/useUserStore";
-const Page = async () =>  {
-  const {user,location} = useUserStore.getState();
+import { cookies } from "next/headers";
+import { verifySession } from "@/lib/utils/auth";
 
-  const data = await getWorkerDashboardData(user?.uid || "",location?.lat || 0,location?.lng || 0,location?.address || "");
-  return <WorkerHomeUI data={data}/>;
-
-}
+const Page = async () => {
+  // We can't access client state (useUserStore) from a server component.
+  // Worker home fetches dashboard data on client side using the store's user/location.
+  return <WorkerHomeUI />;
+};
 
 export default Page;
-

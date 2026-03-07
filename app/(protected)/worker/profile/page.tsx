@@ -19,6 +19,8 @@ import {
 } from "lucide-react";
 import { signOut } from "firebase/auth";
 import { auth } from "@/lib/firebase/firebase";
+import Spinner from "@/components/_shared/spinner";
+import { getMyAssignedJobs } from "@/lib/queries/assignments";
 
 type WorkerProfile = {
   name: string;
@@ -39,11 +41,27 @@ export default function WorkerProfilePage() {
   const {user , loading , clearUser,location} = useUserStore();
   const [isEditing, setIsEditing] = useState(false);
   const [loggingOut, setLoggingOut] = useState(false);
+  const [stats, setStats] = useState({ completed: 0, earnings: 0 });
+  const [statsLoading, setStatsLoading] = useState(true);
+
+  useEffect(() => {
+    if (user?.uid) {
+      getMyAssignedJobs(user.uid).then((assigns) => {
+        const completed = assigns.filter((a: any) => a.status === "completed");
+        const earnings = completed.reduce((sum, a) => sum + (Number(a.wage) || 0), 0);
+        setStats({ completed: completed.length, earnings });
+        setStatsLoading(false);
+      });
+    } else {
+      setStatsLoading(false);
+    }
+  }, [user]);
 
   const handleLogout = async () => {
     setLoggingOut(true);
     try {
       await signOut(auth);
+      await fetch("/api/auth/session", { method: "DELETE" });
       clearUser(); // Clear persisted store data
       router.push("/auth?mode=login");
     } catch (error) {
@@ -53,6 +71,16 @@ export default function WorkerProfilePage() {
       setLoggingOut(false);
     }
   };
+
+  if (loading || statsLoading) {
+    return (
+      <div className="worker-container">
+        <div className="worker-layout flex items-center justify-center h-screen">
+          <Spinner />
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="worker-container">
@@ -174,11 +202,11 @@ export default function WorkerProfilePage() {
           {/* Stats */}
           <div className="grid grid-cols-2 gap-4">
             <div className="bg-card rounded-lg p-4 shadow-sm text-center">
-              <p className="text-2xl font-bold text-primary">{user?.completedJobsCount}</p>
+              <p className="text-2xl font-bold text-primary">{stats.completed}</p>
               <p className="text-xs text-muted-foreground">Jobs Completed</p>
             </div>
             <div className="bg-card rounded-lg p-4 shadow-sm text-center">
-              <p className="text-2xl font-bold text-primary">₹{(user?.totalEarnings ?? 0 / 1000).toFixed(0)}K</p>
+              <p className="text-2xl font-bold text-primary">₹{stats.earnings}</p>
               <p className="text-xs text-muted-foreground">Total Earned</p>
             </div>
           </div>

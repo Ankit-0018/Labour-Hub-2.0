@@ -1,6 +1,6 @@
 import { getCurrentUser } from "@/lib/utils/auth";
-import { getEmployerDashboard } from "@/lib/queries/dashboard";
-import EmployerHomeUI from "./EmployerHomeUI";
+import { getEmployerJobs } from "@/lib/queries/jobs";
+import MyJobsClient from "./MyJobsClient";
 import { redirect } from "next/navigation";
 
 export default async function Page() {
@@ -10,7 +10,7 @@ export default async function Page() {
     redirect("/auth");
   }
 
-  const dashboardData = await getEmployerDashboard(user.uid);
+  const jobs = await getEmployerJobs(user.uid);
 
-  return <EmployerHomeUI data={dashboardData} />;
+  return <MyJobsClient jobs={jobs} />;
 }

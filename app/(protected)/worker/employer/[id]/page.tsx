@@ -16,30 +16,48 @@ import {
 } from "lucide-react";
 import "@/styles/worker.css";
 
+import { useEffect, useState } from "react";
+import { getEmployerProfile } from "@/lib/queries/employer";
+import { Loader2 } from "lucide-react";
+
 export default function EmployerProfilePage() {
     const params = useParams();
     const router = useRouter();
     const id = params.id as string;
 
-    // Dummy employer data
-    const employer = {
-        id,
-        name: "Rajesh Kumar / राजेश कुमार",
-        company: "Kumar Constructions",
-        location: "Noida, Sector 62",
-        rating: 4.9,
-        reviewCount: 124,
-        memberSince: "Jan 2023",
-        verified: true,
-        totalJobsPosted: 45,
-        activeJobs: 3,
-        description: "Reliable contractor with over 15 years of experience in residential and commercial projects. Known for timely payments and fair treatment of workers.",
-        pastJobs: [
-            { title: "Plastering Job", date: "Feb 2024", rating: 5 },
-            { title: "Masonry Work", date: "Jan 2024", rating: 4 },
-            { title: "Electrical Work", date: "Dec 2023", rating: 5 },
-        ]
-    };
+    const [employer, setEmployer] = useState<any>(null);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        const fetchEmployer = async () => {
+            if (!id) return;
+            try {
+                const data = await getEmployerProfile(id);
+                setEmployer(data);
+            } catch (error) {
+                console.error("Error fetching employer:", error);
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchEmployer();
+    }, [id]);
+
+    if (loading) {
+        return (
+            <div className="worker-container flex items-center justify-center min-h-screen">
+                <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
+            </div>
+        );
+    }
+
+    if (!employer) {
+        return (
+            <div className="worker-container flex items-center justify-center min-h-screen">
+                <p>Employer not found / नियोक्ता नहीं मिला</p>
+            </div>
+        );
+    }
 
     return (
         <div className="worker-container">
@@ -65,23 +83,23 @@ export default function EmployerProfilePage() {
                         <div className="relative z-10">
                             <div className="flex items-center mb-4">
                                 <div className="w-16 h-16 rounded-2xl bg-blue-600 flex items-center justify-center text-white text-2xl font-bold shadow-lg mr-4">
-                                    {employer.name.charAt(0)}
+                                    {employer.fullName?.charAt(0) || employer.name?.charAt(0) || "U"}
                                 </div>
                                 <div>
                                     <div className="flex items-center gap-2">
-                                        <h1 className="text-xl font-bold text-gray-900">{employer.name}</h1>
+                                        <h1 className="text-xl font-bold text-gray-900">{employer.fullName || employer.name}</h1>
                                         {employer.verified && (
                                             <ShieldCheck className="w-5 h-5 text-blue-600" />
                                         )}
                                     </div>
-                                    <p className="text-sm text-gray-600">{employer.company}</p>
+                                    <p className="text-sm text-gray-600">{employer.company || "Individual / व्यक्तिगत"}</p>
                                 </div>
                             </div>
 
                             <div className="grid grid-cols-2 gap-4 pt-4 border-t border-gray-100">
                                 <div className="flex items-center text-sm text-gray-600">
                                     <MapPin className="w-4 h-4 mr-2 text-gray-400" />
-                                    {employer.location}
+                                    {employer.location?.city || "Unknown Location"}
                                 </div>
                                 <div className="flex items-center text-sm text-gray-600">
                                     <Calendar className="w-4 h-4 mr-2 text-gray-400" />
@@ -89,11 +107,11 @@ export default function EmployerProfilePage() {
                                 </div>
                                 <div className="flex items-center text-sm text-yellow-600 font-semibold">
                                     <Star className="w-4 h-4 mr-2 fill-current" />
-                                    {employer.rating} ({employer.reviewCount} reviews)
+                                    {employer.averageRating || 0} ({employer.ratingCount || 0} reviews)
                                 </div>
                                 <div className="flex items-center text-sm text-blue-600 font-semibold">
                                     <Briefcase className="w-4 h-4 mr-2" />
-                                    {employer.totalJobsPosted} Jobs Posted
+                                    {employer.totalJobsPosted || 0} Jobs Posted
                                 </div>
                             </div>
                         </div>
@@ -106,7 +124,7 @@ export default function EmployerProfilePage() {
                             विवरण / About
                         </h2>
                         <p className="text-sm text-gray-600 leading-relaxed">
-                            {employer.description}
+                            {employer.description || "No description provided / कोई विवरण नहीं दिया गया है"}
                         </p>
                     </div>
 
@@ -133,23 +151,29 @@ export default function EmployerProfilePage() {
                             पिछली समीक्षाएं / Past Reviews
                         </h2>
                         <div className="space-y-4">
-                            {employer.pastJobs.map((job, idx) => (
-                                <div key={idx} className={`pb-4 ${idx !== employer.pastJobs.length - 1 ? 'border-b border-gray-100' : ''}`}>
-                                    <div className="flex justify-between items-center mb-1">
-                                        <h3 className="text-sm font-semibold text-gray-900">{job.title}</h3>
-                                        <div className="flex text-yellow-500">
-                                            {[...Array(5)].map((_, i) => (
-                                                <Star key={i} className={`w-3 h-3 ${i < job.rating ? 'fill-current' : 'text-gray-200'}`} />
-                                            ))}
+                            {employer.pastJobs && employer.pastJobs.length > 0 ? (
+                                employer.pastJobs.map((job: any, idx: number) => (
+                                    <div key={idx} className={`pb-4 ${idx !== employer.pastJobs.length - 1 ? 'border-b border-gray-100' : ''}`}>
+                                        <div className="flex justify-between items-center mb-1">
+                                            <h3 className="text-sm font-semibold text-gray-900">{job.title}</h3>
+                                            <div className="flex text-yellow-500">
+                                                {[...Array(5)].map((_, i) => (
+                                                    <Star key={i} className={`w-3 h-3 ${i < job.rating ? 'fill-current' : 'text-gray-200'}`} />
+                                                ))}
+                                            </div>
                                         </div>
+                                        <p className="text-xs text-gray-500">{job.date}</p>
                                     </div>
-                                    <p className="text-xs text-gray-500">{job.date}</p>
-                                </div>
-                            ))}
+                                ))
+                            ) : (
+                                <p className="text-xs text-gray-500 text-center py-4">No reviews yet / अभी तक कोई समीक्षा नहीं</p>
+                            )}
                         </div>
-                        <Button variant="outline" className="w-full mt-4 text-xs font-semibold text-gray-600">
-                            Show All Reviews
-                        </Button>
+                        {employer.pastJobs && employer.pastJobs.length > 0 && (
+                            <Button variant="outline" className="w-full mt-4 text-xs font-semibold text-gray-600">
+                                Show All Reviews
+                            </Button>
+                        )}
                     </div>
                 </div>
             </div>

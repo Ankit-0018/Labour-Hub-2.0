@@ -1,0 +1,104 @@
+import { getJobsWithinRadius, getEmployerJobs } from "./jobs";
+import { getMyApplications, getApplicationsForJob } from "./applications";
+import {
+  getMyAssignedJobs,
+  getEmployerAssignments,
+} from "./assignments";
+
+// ─── Worker Dashboard ────────────────────────────────────────────
+
+export async function getWorkerDashboard(
+  workerId: string,
+  lat: number,
+  lng: number,
+  city: string
+) {
+  const [nearbyJobs, applications, assignments] = await Promise.all([
+    getJobsWithinRadius(lat, lng, city, 3),
+    getMyApplications(workerId),
+    getMyAssignedJobs(workerId),
+  ]);
+
+  const closestJob = nearbyJobs.length
+    ? nearbyJobs.reduce((min: any, j: any) =>
+        (j.distance ?? Infinity) < (min.distance ?? Infinity) ? j : min
+      )
+    : null;
+
+  const activeAssignments = assignments.filter(
+    (a: any) => a.status === "active"
+  );
+  const completedAssignments = assignments.filter(
+    (a: any) => a.status === "completed"
+  );
+
+  return {
+    nearbyJobs,
+    nearbyJobsCount: nearbyJobs.length,
+    closestJobDistance: closestJob
+      ? `${(closestJob as any).distance?.toFixed(1)} km`
+      : "N/A",
+    applications,
+    assignments,
+    activeAssignments,
+    completedAssignments,
+    todayEarnings: 0, // calculated from earnings collection if needed
+  };
+}
+
+// ─── Employer Dashboard ──────────────────────────────────────────
+
+export async function getEmployerDashboard(employerId: string) {
+  const [jobs, assignments] = await Promise.all([
+    getEmployerJobs(employerId),
+    getEmployerAssignments(employerId),
+  ]);
+
+  const activeJobs = jobs.filter((j) => j.status === "open");
+  const closedJobs = jobs.filter((j) => j.status !== "open");
+
+  // Gather applications for all active jobs in parallel
+  const applicationsByJob = await Promise.all(
+    activeJobs.map(async (job) => ({
+      jobId: job.id,
+      jobTitle: job.title,
+      applications: await getApplicationsForJob(job.id),
+    }))
+  );
+
+  const allApplications = applicationsByJob.flatMap((b) =>
+    b.applications.map((a: any) => ({ ...a, jobTitle: b.jobTitle }))
+  );
+
+  const pendingApplications = allApplications.filter(
+    (a: any) => a.status === "pending"
+  );
+
+  const activeAssignments = assignments.filter(
+    (a: any) => a.status === "active"
+  );
+  const completedAssignments = assignments.filter(
+    (a: any) => a.status === "completed"
+  );
+  const disputedAssignments = assignments.filter(
+    (a: any) => a.status === "disputed"
+  );
+
+  return {
+    stats: {
+      activeJobsCount: activeJobs.length,
+      applicationsCount: pendingApplications.length,
+      completedJobsCount: completedAssignments.length,
+    },
+    activeJobs,
+    closedJobs,
+    allJobs: jobs,
+    applicationsByJob,
+    allApplications,
+    pendingApplications,
+    assignments,
+    activeAssignments,
+    completedAssignments,
+    disputedAssignments,
+  };
+}

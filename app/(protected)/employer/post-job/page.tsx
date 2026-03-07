@@ -8,7 +8,7 @@ import { ChevronLeft } from "lucide-react";
 import Link from "next/link";
 import { EmployerNav } from "@/components/navigation/EmployerNav";
 import LocationField from "@/components/sections/location-field";
-import { createJob } from "@/lib/services/employer";
+import { createJob } from "@/lib/actions/job";
 import { useUserStore } from "@/lib/stores/useUserStore";
 
 const SKILLS = [
@@ -30,7 +30,6 @@ const DURATIONS = [
 export default function PostJobPage() {
   const router = useRouter();
   const { user, location } = useUserStore();
-
   const [formData, setFormData] = useState({
     title: "",
     skillsRequired: [] as string[],
