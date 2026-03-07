@@ -3,6 +3,7 @@
 import { Plus, Users, Briefcase, ClipboardList } from "lucide-react";
 import Link from "next/link";
 import { EmployerNav } from "@/components/navigation/EmployerNav";
+import { LanguageToggle } from "@/components/_shared/language-toggle";
 import { EmployerDashboardData, Job, Application } from "@/lib/types";
 
 type Props = {
@@ -16,18 +17,21 @@ export default function EmployerHomeUI({ data }: Props) {
     <div className="min-h-screen bg-linear-to-b from-blue-50 to-white pb-24">
       {/* Header */}
       <div className="sticky top-0 z-40 bg-blue-600 text-white shadow-sm">
-        <div className="max-w-4xl mx-auto px-4 py-4">
-          <h1 className="text-2xl font-bold">Labour Hub</h1>
-          <p className="text-sm text-blue-100">नियोक्ता / Employer</p>
+        <div className="max-w-4xl mx-auto px-4 py-4 flex items-center justify-between">
+          <div>
+            <h1 className="text-2xl font-bold">Labour Hub</h1>
+            <p className="text-sm text-blue-100">Employer</p>
+          </div>
+          <LanguageToggle />
         </div>
       </div>
 
       <div className="max-w-4xl mx-auto px-4 py-6 space-y-6">
         {/* Welcome */}
         <div className="bg-white rounded-2xl p-6 border shadow-sm">
-          <h2 className="text-xl font-bold mb-2">स्वागत है / Welcome Back</h2>
+          <h2 className="text-xl font-bold mb-2">Welcome Back</h2>
           <p className="text-gray-600">
-            यहाँ आप मजदूरों को काम देने के लिए नौकरियाँ पोस्ट कर सकते हैं।
+            Post jobs and hire workers to complete your projects efficiently.
           </p>
         </div>
 
@@ -35,17 +39,17 @@ export default function EmployerHomeUI({ data }: Props) {
         <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
           <Stat
             value={stats.activeJobsCount}
-            label="सक्रिय काम / Active Jobs"
+            label="Active Jobs"
             color="text-blue-600"
           />
           <Stat
             value={stats.applicationsCount}
-            label="लंबित आवेदन / Pending"
+            label="Pending"
             color="text-green-600"
           />
           <Stat
             value={stats.completedJobsCount}
-            label="पूरा काम / Completed"
+            label="Completed"
             color="text-purple-600"
           />
         </div>
@@ -55,8 +59,8 @@ export default function EmployerHomeUI({ data }: Props) {
           <Link href="/employer/post-job">
             <ActionCard
               icon={<Plus className="w-10 h-10" />}
-              title="नई नौकरी पोस्ट करें"
-              subtitle="Post a new job"
+              title="Post a New Job"
+              subtitle="Create job listings"
               color="from-blue-600 to-blue-700"
             />
           </Link>
@@ -64,8 +68,8 @@ export default function EmployerHomeUI({ data }: Props) {
           <Link href="/employer/my-jobs">
             <ActionCard
               icon={<Briefcase className="w-10 h-10" />}
-              title="मेरी नौकरियाँ"
-              subtitle="My Jobs & Applications"
+              title="My Jobs"
+              subtitle="View jobs & applications"
               color="from-green-600 to-green-700"
             />
           </Link>
@@ -73,8 +77,8 @@ export default function EmployerHomeUI({ data }: Props) {
           <Link href="/employer/assignments">
             <ActionCard
               icon={<ClipboardList className="w-10 h-10" />}
-              title="काम प्रबंधन"
-              subtitle="Manage Assignments"
+              title="Assignments"
+              subtitle="Manage active assignments"
               color="from-purple-600 to-purple-700"
             />
           </Link>
@@ -82,8 +86,8 @@ export default function EmployerHomeUI({ data }: Props) {
           <Link href="/employer/search-workers">
             <ActionCard
               icon={<Users className="w-10 h-10" />}
-              title="मजदूर खोजें"
-              subtitle="Search workers"
+              title="Find Workers"
+              subtitle="Search qualified workers"
               color="from-orange-600 to-orange-700"
             />
           </Link>
@@ -93,13 +97,13 @@ export default function EmployerHomeUI({ data }: Props) {
         <div className="bg-white rounded-2xl p-6 border shadow-sm">
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-lg font-bold">
-              सक्रिय नौकरियाँ / Active Jobs
+              Active Jobs
             </h3>
             <Link
               href="/employer/my-jobs"
               className="text-sm text-blue-600 font-medium"
             >
-              सब देखें →
+              View All →
             </Link>
           </div>
 
@@ -138,7 +142,7 @@ export default function EmployerHomeUI({ data }: Props) {
             ))
           ) : (
             <p className="text-gray-500 text-sm text-center py-8">
-              कोई सक्रिय नौकरी नहीं / No active jobs
+              No active jobs
             </p>
           )}
         </div>
@@ -148,7 +152,7 @@ export default function EmployerHomeUI({ data }: Props) {
           <div className="bg-white rounded-2xl p-6 border shadow-sm">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-lg font-bold">
-                लंबित आवेदन / Pending Applications
+                Pending Applications
               </h3>
               <span className="bg-yellow-100 text-yellow-700 text-xs font-bold px-3 py-1 rounded-full">
                 {pendingApplications.length}
@@ -184,13 +188,13 @@ export default function EmployerHomeUI({ data }: Props) {
           <div className="bg-white rounded-2xl p-6 border shadow-sm">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-lg font-bold">
-                चल रहे काम / Active Assignments
+                Active Assignments
               </h3>
               <Link
                 href="/employer/assignments"
                 className="text-sm text-blue-600 font-medium"
               >
-                सब देखें →
+                View All →
               </Link>
             </div>
 

@@ -1,6 +1,7 @@
 import { getJobById } from "@/lib/queries/jobs";
 import JobDetailsPage from "./client";
 import { getEmployerProfile } from "@/lib/queries/employer";
+import { serializeFirestore } from "@/lib/utils/firebase/serializeFirestore";
 
 export default async function Page({
   params,
@@ -19,6 +20,10 @@ export default async function Page({
   }
 
   const employer = await getEmployerProfile(job.employerId);
+  
+  // Serialize data to remove Firestore Timestamps
+  const serializedJob = serializeFirestore(job);
+  const serializedEmployer = serializeFirestore(employer);
 
-  return <JobDetailsPage job={job} employer={employer} />;
+  return <JobDetailsPage job={serializedJob} employer={serializedEmployer} />;
 }

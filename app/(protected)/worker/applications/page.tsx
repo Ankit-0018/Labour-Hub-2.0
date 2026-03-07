@@ -102,7 +102,7 @@ export default function MyApplicationsPage() {
                   : "text-gray-500 hover:text-gray-700"
               }`}
             >
-              आवेदन / Applications
+              Applications
             </button>
             <button
               onClick={() => setActiveTab("assignments")}
@@ -112,7 +112,7 @@ export default function MyApplicationsPage() {
                   : "text-gray-500 hover:text-gray-700"
               }`}
             >
-              काम / Assignments
+              Assignments
             </button>
           </div>
         </div>
@@ -161,10 +161,10 @@ export default function MyApplicationsPage() {
             ) : (
               <EmptyState
                 icon={<Briefcase className="w-12 h-12 text-gray-300" />}
-                title="कोई आवेदन नहीं"
-                description="आपने अभी तक किसी काम के लिए आवेदन नहीं किया है।"
+                title="No applications"
+                description="You haven't applied to any jobs yet."
                 actionLink="/worker/search"
-                actionLabel="काम खोजें / Find Jobs"
+                actionLabel="Find Jobs"
               />
             )
           ) : assignments.length > 0 ? (
@@ -205,7 +205,7 @@ export default function MyApplicationsPage() {
           ) : (
             <EmptyState
               icon={<ClipboardList className="w-12 h-12 text-gray-300" />}
-              title="कोई काम नहीं मिला"
+              title="No jobs found"
               description="आपको अभी तक कोई काम नहीं सौंपा गया है।"
               actionLink="/worker/search"
               actionLabel="काम खोजें / Find Jobs"

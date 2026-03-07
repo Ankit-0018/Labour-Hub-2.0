@@ -142,7 +142,7 @@ export default function WorkerEarningsPage() {
         {/* Header */}
         <div className="worker-header">
           <div className="worker-header-content">
-            <h1 className="worker-header-title">कमाई / Earnings</h1>
+            <h1 className="worker-header-title">Earnings</h1>
           </div>
         </div>
 

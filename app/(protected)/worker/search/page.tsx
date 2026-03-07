@@ -18,10 +18,10 @@ export default function WorkerSearchPage() {
   const { user } = useUserStore();
 
   const filters = [
-    { label: "सब / All", value: "all" },
-    { label: "तुरंत / Urgent", value: "urgent" },
-    { label: "अधिक पे / High Pay", value: "highpay" },
-    { label: "निकट / Nearest", value: "nearest" },
+    { label: "All", value: "all" },
+    { label: "Urgent", value: "urgent" },
+    { label: "High Pay", value: "highpay" },
+    { label: "Nearest", value: "nearest" },
   ];
 
   return (
@@ -30,7 +30,7 @@ export default function WorkerSearchPage() {
         {/* Header */}
         <div className="worker-header">
           <div className="worker-header-content">
-            <h1 className="worker-header-title">पास में काम / Jobs</h1>
+            <h1 className="worker-header-title">Jobs</h1>
           </div>
         </div>
 

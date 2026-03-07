@@ -11,12 +11,12 @@ import { setSession } from '@/lib/utils/auth/session';
 const roles: RoleItem[] = [
   {
     imgSrc: labour,
-    title: "मुझे काम चाहिए / I need work",
+    title: "I need work",
     role: "worker"
   },
   {
     imgSrc: recruitor,
-    title: "मुझे कर्मचारी चाहिए / I need workers",
+    title: "I need workers",
     role: "employer"
   }
 ];

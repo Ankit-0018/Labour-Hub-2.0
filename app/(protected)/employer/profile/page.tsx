@@ -117,7 +117,7 @@ export default function EmployerProfilePage() {
         {/* Header */}
         <div className="worker-header">
           <div className="worker-header-content">
-            <h1 className="worker-header-title">प्रोफाइल / Profile</h1>
+            <h1 className="worker-header-title">Profile</h1>
             <Button
               variant="ghost"
               size="sm"

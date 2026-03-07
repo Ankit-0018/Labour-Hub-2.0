@@ -20,9 +20,11 @@ export async function getWorkerDashboard(
   ]);
 
   const closestJob = nearbyJobs.length
-    ? nearbyJobs.reduce((min: any, j: any) =>
-        (j.distance ?? Infinity) < (min.distance ?? Infinity) ? j : min
-      )
+    ? nearbyJobs.reduce((min: any, j: any) => {
+        const minDist = typeof min.distance === "number" ? min.distance : Infinity;
+        const jDist = typeof j.distance === "number" ? j.distance : Infinity;
+        return jDist < minDist ? j : min;
+      })
     : null;
 
   const activeAssignments = assignments.filter(
@@ -42,12 +44,16 @@ export async function getWorkerDashboard(
     })
     .reduce((sum: number, a: any) => sum + Number(a.wage || 0), 0);
 
+  // Format closest job distance with proper validation
+  let closestJobDistance = "N/A";
+  if (closestJob && typeof closestJob.distance === "number" && closestJob.distance !== undefined) {
+    closestJobDistance = `${closestJob.distance.toFixed(1)} km`;
+  }
+
   return {
     nearbyJobs,
     nearbyJobsCount: nearbyJobs.length,
-    closestJobDistance: closestJob
-      ? `${(closestJob as any).distance?.toFixed(1)} km`
-      : "N/A",
+    closestJobDistance,
     applications,
     assignments,
     activeAssignments,

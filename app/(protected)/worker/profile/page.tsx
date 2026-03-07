@@ -88,7 +88,7 @@ export default function WorkerProfilePage() {
         {/* Header */}
         <div className="worker-header">
           <div className="worker-header-content">
-            <h1 className="worker-header-title">प्रोफाइल / Profile</h1>
+            <h1 className="worker-header-title">Profile</h1>
             <Button
               variant="ghost"
               size="sm"
@@ -227,21 +227,21 @@ export default function WorkerProfilePage() {
             className="w-full bg-blue-600 hover:bg-blue-700 text-white h-12 rounded-xl"
           >
             <LogOut className="w-4 h-4 mr-2" />
-            {loggingOut ? "लॉगआउट हो रहे हैं..." : "लॉगआउट / Logout"}
+            {loggingOut ? "Logging out..." : "Logout"}
           </Button>
 
           <Button
             variant="outline"
             className="w-full bg-transparent border-gray-300 text-gray-700 h-10 rounded-lg"
           >
-            पासवर्ड बदलें / Change Password
+            Change Password
           </Button>
 
           <Button
             variant="outline"
             className="w-full bg-red-50 border-red-200 text-red-700 hover:bg-red-100 h-10 rounded-lg"
           >
-            खाता हटाएं / Delete Account
+            Delete Account
           </Button>
         </div>
       </div>

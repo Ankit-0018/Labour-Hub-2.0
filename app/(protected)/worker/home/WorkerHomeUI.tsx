@@ -18,9 +18,9 @@ const STATUS_OPTIONS: {
   label: string;
   color: string;
 }[] = [
-  { value: "available", label: "उपलब्ध / Available", color: "bg-green-500" },
-  { value: "busy", label: "व्यस्त / Busy", color: "bg-yellow-500" },
-  { value: "offline", label: "ऑफ़लाइन / Offline", color: "bg-gray-400" },
+  { value: "available", label: "Available", color: "bg-green-500" },
+  { value: "busy", label: "Busy", color: "bg-yellow-500" },
+  { value: "offline", label: "Offline", color: "bg-gray-400" },
 ];
 
 export default function WorkerHomeUI() {
@@ -90,7 +90,7 @@ export default function WorkerHomeUI() {
           <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-200">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-sm font-semibold text-gray-700">
-                आपकी स्थिति / Your Status
+                Your Status
               </h2>
               <div
                 className={`w-3 h-3 rounded-full ${statusInfo?.color}`}
@@ -119,7 +119,7 @@ export default function WorkerHomeUI() {
               {workStatus === "available"
                 ? "You are visible to employers."
                 : workStatus === "busy"
-                  ? "You are busy but visible."
+                  ? "You are busy but still visible to employers."
                   : "You are not visible to employers."}
             </p>
           </div>
@@ -135,7 +135,7 @@ export default function WorkerHomeUI() {
                     {data?.nearbyJobsCount ?? 0}
                   </div>
                   <p className="text-xs text-gray-600 mt-1">
-                    पास में काम / Nearby Jobs
+                    Nearby Jobs
                   </p>
                 </div>
                 <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-200">
@@ -143,7 +143,7 @@ export default function WorkerHomeUI() {
                     {data?.closestJobDistance ?? "N/A"}
                   </div>
                   <p className="text-xs text-gray-600 mt-1">
-                    निकटतम काम / Closest Job
+                    Closest Job
                   </p>
                 </div>
               </div>
@@ -151,7 +151,7 @@ export default function WorkerHomeUI() {
               {/* Earnings Card */}
               <div className="bg-linear-to-br from-green-50 to-emerald-50 rounded-xl p-4 border border-green-200">
                 <p className="text-xs text-gray-600 mb-1">
-                  आज की कमाई / Today&apos;s Earnings
+                  Today's Earnings
                 </p>
                 <p className="text-3xl font-bold text-green-600">
                   ₹{data?.todayEarnings ?? 0}
@@ -162,7 +162,7 @@ export default function WorkerHomeUI() {
               <Link href="/worker/search">
                 <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white h-12 rounded-xl">
                   <Briefcase className="w-4 h-4 mr-2" />
-                  पास में काम देखें / View Nearby Jobs
+                  View Nearby Jobs
                 </Button>
               </Link>
             </>
@@ -171,11 +171,11 @@ export default function WorkerHomeUI() {
           {/* Profile Summary Card */}
           <div className="bg-white rounded-2xl p-4 shadow-sm border border-gray-200">
             <h3 className="text-sm font-semibold text-gray-900 mb-4">
-              आपकी प्रोफ़ाइल / Your Profile
+              Your Profile
             </h3>
             <div className="space-y-3">
               <div className="flex items-center justify-between">
-                <span className="text-xs text-gray-600">कौशल / Skill</span>
+                <span className="text-xs text-gray-600">Skill</span>
                 <div className="flex gap-1 flex-wrap justify-end">
                   {user?.skills?.map((skill, idx) => (
                     <span
@@ -189,7 +189,7 @@ export default function WorkerHomeUI() {
               </div>
               <div className="border-t border-gray-200 pt-3 flex items-center justify-between">
                 <span className="text-xs text-gray-600">
-                  दैनिक दर / Daily Rate
+                  Daily Rate
                 </span>
                 <span className="text-sm font-semibold text-gray-900">
                   ₹{user?.dailyWage}
@@ -197,14 +197,14 @@ export default function WorkerHomeUI() {
               </div>
               <div className="border-t border-gray-200 pt-3 flex items-center justify-between">
                 <span className="text-xs text-gray-600">
-                  पूर्ण किए गए काम / Jobs Done
+                  Jobs Done
                 </span>
                 <span className="text-sm font-semibold text-gray-900">
                   {user?.completedJobsCount}
                 </span>
               </div>
               <div className="border-t border-gray-200 pt-3 flex items-center justify-between">
-                <span className="text-xs text-gray-600">रेटिंग / Rating</span>
+                <span className="text-xs text-gray-600">Rating</span>
                 <span className="text-sm font-semibold text-yellow-500">
                   {user?.averageRating} ⭐ ({user?.ratingCount})
                 </span>
@@ -217,9 +217,9 @@ export default function WorkerHomeUI() {
             <AlertCircle className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
             <div className="text-xs text-blue-900">
               <p className="font-medium mb-1">
-                प्रोफाइल सुधारें / Complete Profile
+                Complete Your Profile
               </p>
-              <p>फोटो और समीक्षा जोड़ें किराए के मौके बढ़ाने के लिए।</p>
+              <p>Add your photo and reviews to increase your chances of getting hired.</p>
             </div>
           </div>
         </div>

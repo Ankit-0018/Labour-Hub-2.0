@@ -3,18 +3,20 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Home, Search, Wallet, User, Briefcase } from "lucide-react";
+import { useLanguage } from "@/hooks/useLanguage";
 
 export function WorkerNav() {
   const pathname = usePathname();
+  const { t } = useLanguage();
 
   const isActive = (path: string) => pathname === path;
 
   const navItems = [
-    { label: "घर / Home", href: "/worker/home", icon: Home },
-    { label: "खोज / Search", href: "/worker/search", icon: Search },
-    { label: "आवेदन / Apps", href: "/worker/applications", icon: Briefcase },
-    { label: "कमाई / Earnings", href: "/worker/earnings", icon: Wallet },
-    { label: "प्रोफाइल / Profile", href: "/worker/profile", icon: User },
+    { labelKey: "Home", href: "/worker/home", icon: Home },
+    { labelKey: "Search", href: "/worker/search", icon: Search },
+    { labelKey: "Applications", href: "/worker/applications", icon: Briefcase },
+    { labelKey: "Earnings", href: "/worker/earnings", icon: Wallet },
+    { labelKey: "Profile", href: "/worker/profile", icon: User },
   ];
 
   return (
@@ -29,7 +31,7 @@ export function WorkerNav() {
               className={`bottom-nav-item ${isActive(item.href) ? "active" : ""}`}
             >
               <Icon className="bottom-nav-icon" />
-              <span className="text-xs">{item.label}</span>
+              <span className="text-xs">{t(item.labelKey)}</span>
             </Link>
           );
         })}

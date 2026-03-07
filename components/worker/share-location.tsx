@@ -20,7 +20,7 @@ const ShareLocation = () => {
 
             <div>
               <p className="text-sm font-semibold text-gray-900">
-                स्थान साझा करें / Share Location
+                Share Your Location
               </p>
               <p className="text-xs text-gray-600">
                 {isTracking ? "On - Jobs visible within 3 km" : "Off"}

@@ -10,11 +10,11 @@ export function EmployerNav() {
   const isActive = (path: string) => pathname?.startsWith(path);
 
   const navItems = [
-    { label: "घर", href: "/employer/home", icon: Home },
-    { label: "नौकरियाँ", href: "/employer/my-jobs", icon: Briefcase },
-    { label: "पोस्ट", href: "/employer/post-job", icon: PlusCircle },
-    { label: "काम", href: "/employer/assignments", icon: ClipboardList },
-    { label: "प्रोफाइल", href: "/employer/profile", icon: User },
+    { label: "Home", href: "/employer/home", icon: Home },
+    { label: "Jobs", href: "/employer/my-jobs", icon: Briefcase },
+    { label: "Post", href: "/employer/post-job", icon: PlusCircle },
+    { label: "Work", href: "/employer/assignments", icon: ClipboardList },
+    { label: "Profile", href: "/employer/profile", icon: User },
   ];
 
   return (

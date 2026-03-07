@@ -102,7 +102,7 @@ export default function AuthPage() {
           <div className="text-center mb-8">
             <h1 className="text-2xl font-bold text-black mb-1">Labour Hub</h1>
             <p className="text-sm text-gray-500">
-              {mode === "register" ? "Register/रजिस्टर" : "Login/लॉग इन"}
+              {mode === "register" ? "Register" : "Login"}
             </p>
           </div>
 
@@ -110,13 +110,13 @@ export default function AuthPage() {
             {mode === "register" && !confirmationResult && (
               <div className="relative space-y-2">
                 <label className="block text-sm font-medium text-black">
-                  Full Name / पूरा नाम
+                  Full Name
                 </label>
                 <input
                   type="text"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  placeholder="eg. अंकित कुमार"
+                  placeholder="e.g. John Smith"
                   className="w-full px-4 py-3 bg-gray-100 rounded-xl"
                   required
                 />
@@ -127,7 +127,7 @@ export default function AuthPage() {
             {!confirmationResult && (
               <div className="space-y-2">
                 <label className="block text-sm font-medium text-black">
-                  Mobile no./मोबाइल नं.
+                  Mobile Number
                 </label>
                 <input
                   type="tel"
@@ -164,7 +164,7 @@ export default function AuthPage() {
                 href="/auth?mode=register"
                 className="text-sm text-blue-500 hover:underline"
               >
-                Create new account / रजिस्टर करें ?
+                Create a New Account
               </Link>
             ) : (
               <Link

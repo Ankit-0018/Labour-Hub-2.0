@@ -86,7 +86,7 @@ console.log("User: " , user.uid + "Location: " , location + "User details: " , u
       </button>
 
       <p className="text-xs text-gray-600">
-        स्वचालित रूप से पता लगाया जाएगा। Automatically detected using GPS.
+        Automatically detected using your device's GPS.
       </p>
     </div>
   );

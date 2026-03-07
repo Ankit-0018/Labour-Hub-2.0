@@ -35,18 +35,18 @@ export default function JobDetailsPage({ job, employer }: { job: Job, employer: 
 
     const handleApply = async () => {
         if (!user?.uid) {
-            alert("Please log in to apply / आवेदन करने के लिए कृपया लॉग इन करें");
+            alert("Please log in to apply");
             return;
         }
 
         try {
             setIsApplying(true);
             await applyToJob(job.id, job.employerId, user.uid);
-            alert("Applied successfully! / सफलतापूर्वक आवेदन किया गया!");
+            alert("Applied successfully!");
             // router.push('/worker/applications'); // Optional: redirect to applications page
         } catch (error) {
             console.error("Error applying to job:", error);
-            alert("Failed to apply. Please try again. / आवेदन करने में विफल। कृपया पुन: प्रयास करें।");
+            alert("Failed to apply. Please try again.");
         } finally {
             setIsApplying(false);
         }
@@ -64,7 +64,7 @@ export default function JobDetailsPage({ job, employer }: { job: Job, employer: 
                         className="flex items-center text-sm text-gray-600 hover:text-blue-600 transition-colors"
                     >
                         <ChevronLeft className="w-4 h-4 mr-1" />
-                        वापस / Back
+                        Back
                     </button>
                 </div>
 
@@ -138,7 +138,7 @@ export default function JobDetailsPage({ job, employer }: { job: Job, employer: 
                     <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-200">
                         <h2 className="text-sm font-semibold text-gray-700 mb-3 flex items-center">
                             <CheckCircle2 className="w-4 h-4 mr-2 text-green-500" />
-                            विवरण / Description
+                            Description
                         </h2>
                         <p className="text-sm text-gray-600 leading-relaxed">
                             {job.description}
@@ -149,7 +149,7 @@ export default function JobDetailsPage({ job, employer }: { job: Job, employer: 
                     <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-200">
                         <h2 className="text-sm font-semibold text-gray-700 mb-3 flex items-center">
                             <Briefcase className="w-4 h-4 mr-2 text-blue-500" />
-                            आवश्यक कौशल / Skills Required
+                            Skills Required
                         </h2>
                         <div className="flex flex-wrap gap-2">
                             {job.skillsRequired?.map((skill) => (
@@ -176,7 +176,7 @@ export default function JobDetailsPage({ job, employer }: { job: Job, employer: 
                                 <Briefcase className="w-5 h-5 group-hover:scale-110 transition-transform" />
                             )}
                             <span className="text-lg font-bold">
-                                {isApplying ? "Applying..." : "अभी आवेदन करें / Apply Now"}
+                                {isApplying ? "Applying..." : "Apply Now"}
                             </span>
                         </Button>
                     </div>
