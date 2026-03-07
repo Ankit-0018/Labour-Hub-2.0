@@ -21,6 +21,7 @@ export type Job = {
   duration: string;
   employerId: any;
   status: "open" | "closed" | "assigned" | "completed" | "cancelled" | "deleted";
+  distance?: number;
   createdAt?: string | any;
   updatedAt?: string | any;
 };
